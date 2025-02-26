@@ -1,8 +1,8 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 import uuid
 class User(models.Model):
     _id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    fullName=models.CharField(max_length=255)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=255)
     sq1 = models.CharField(max_length=255)

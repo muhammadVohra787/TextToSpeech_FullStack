@@ -16,8 +16,15 @@ def create_user(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
+            
+            # Check if user already exists
+            if User.objects.filter(email=data["email"]).exists():
+                print("user already exists")
+                return JsonResponse({"message": "User with this email already exists"}, status=400)
+            
             user = User.objects.create(
                 email=data["email"],
+                fullName= data["fullName"],
                 password=make_password(data["password"]),  # Hash password
                 sq1=data["sq1"],
                 sa1=data["sa1"],
@@ -25,8 +32,9 @@ def create_user(request):
                 sa2=data["sa2"], 
                 admin=data.get("admin", False)
             )
-            return JsonResponse({"message": "User registered"}, status=201)
+            return JsonResponse({"message": "User registered", "success": True}, status=201)
         except Exception as e:
+            print(e)
             return JsonResponse({"error": str(e)}, status=400)
 
 @csrf_exempt
@@ -39,7 +47,7 @@ def login_user(request):
 
             user = User.objects.filter(email=email).first()
             if not user or not check_password(password, user.password):
-                return JsonResponse({"error": "Invalid credentials"}, status=401)
+                return JsonResponse({"message": "Invalid credentials, Check your email password"}, status=401)
       
             payload = {
                 "user_id": str(user._id),
@@ -48,8 +56,8 @@ def login_user(request):
                 "iat": datetime.datetime.utcnow(),
             }
             token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
-
-            return JsonResponse({"token": token, "user_id": str(user._id), "admin" : user.admin}, status=200)
+ 
+            return JsonResponse({"token": token, "user_id": str(user._id), "admin" : user.admin, "success": True}, status=200)
 
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)

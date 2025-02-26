@@ -1,35 +1,37 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ThemeProvider, CssBaseline } from "@mui/material";
+import theme from "./theme";
+import SignUpPage from "./pages/SignUpPage.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
+import SignInPage from "./pages/SignInPage.jsx";
+import Unauthorized from "./pages/Unauthorized.jsx";
+import NotFound from "./pages/NotFound.jsx";
+import Navbar from './components/Navbar';
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router>
+      <Navbar/>
+      <br></br>
+        <Routes>
+
+          <Route path="/login" element={<SignInPage />} />
+          <Route path="/" element={<SignUpPage firstPage={true} />}></Route>
+          {/* <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+            <Route path="/dashboard/admin" element={<AdminDashboard />} />
+          </Route>
+ 
+          <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
+            <Route path="/dashboard/student" element={<UserDashboard />} />
+          </Route> */}
+          <Route path="/unauth" element={<Unauthorized/>}></Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Router>
+    </ThemeProvider>
+  );
 }
 
-export default App
+export default App;
