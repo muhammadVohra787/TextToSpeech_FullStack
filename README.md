@@ -56,3 +56,17 @@ Note: Make sure node modules is there in the client folder.
 
 ```
 
+
+
+```
+**AI-Side**
+
+For the AI-side you need to install the packages from the requirements.txt
+Python > 3.11.xx
+The model will download on the local the first time it's executing.
+
+Scripts to execute
+server => python manage.py runserver
+client => npm start
+
+```
