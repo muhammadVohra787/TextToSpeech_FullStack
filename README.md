@@ -46,7 +46,7 @@ For the **server side**
 source venv/bin/ai
 pip install -r requirements.txt
 python manage.py runserver
-✅ Your server should now be running at **http://127.0.0.1:8000/** 🚀
+✅ Your server should now be running at http://127.0.0.1:8000/ 🚀
 ```
 For the **client side**
 ```
