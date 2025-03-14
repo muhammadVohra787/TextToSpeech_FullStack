@@ -60,9 +60,7 @@ def login_user(request):
             return JsonResponse({"token": token, "user_id": str(user._id), "admin" : user.admin, "success": True}, status=200)
 
         except Exception as e:
-            return JsonResponse({"message": str(e)}, status=400)
-    else:
-        return JsonResponse({"message": "Invalid request method"}, status=405)        
+            return JsonResponse({"error": str(e)}, status=400)
         
 
 
@@ -91,7 +89,7 @@ def forgot_password(request):
             return JsonResponse({"message": str(e)}, status=400)
     else:
         return JsonResponse({"message": "Invalid request method"}, status=405)        
-
+ 
 @csrf_exempt
 def reset_password(request):
     if request.method == "POST":
@@ -113,8 +111,8 @@ def reset_password(request):
     else:
         return JsonResponse({"message": "Invalid request method"}, status=405)        
     
-    
-    
+     
+     
 @csrf_exempt
 def get_user(request, user_id):
     if request.method != "GET":
@@ -124,7 +122,7 @@ def get_user(request, user_id):
         user = User.objects.filter(_id=user_id).values(
             "id", "fullName", "email", "sq1", "sa1", "sq2", "sa2", "admin"
         ).first()  # Excludes password
-              
+            
         if not user:
             return JsonResponse({"message": "User not found"}, status=404)
 
@@ -132,9 +130,8 @@ def get_user(request, user_id):
 
     except Exception as e:
         return JsonResponse({"message": str(e)}, status=500)
-     
-            
-
+      
+             
 class MongoJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, ObjectId):
