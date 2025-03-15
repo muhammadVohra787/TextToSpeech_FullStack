@@ -33,7 +33,7 @@ const ProcessImage = () => {
     formData.append('image', selectedFile);
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/process_image/', formData, {
+      const response = await axios.post('http://127.0.0.1:8000/api/tts/process_image/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
