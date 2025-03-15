@@ -12,6 +12,8 @@ venv/
 client/node_modules/
 node_modules/
 
+TTS-AI
+
 # Ignore environment variables and config files
 .env
 .env.local

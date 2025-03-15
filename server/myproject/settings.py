@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'users',
     'storage',
     'corsheaders',
+    'tts'
 ]
 
 MIDDLEWARE = [
@@ -136,5 +137,6 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "https://myfrontend.com",
+    "http://localhost:3000"
 ]
 
