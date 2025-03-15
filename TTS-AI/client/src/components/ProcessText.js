@@ -24,6 +24,10 @@ const ProcessText = () => {
     setLoading(true);
     setError(null);
 
+    // Clear previous Audio
+    setAudioUrls([]);
+
+
     try {
       const response = await axios.post('http://127.0.0.1:8000/api/process_text/', {
         text: text.trim(),
