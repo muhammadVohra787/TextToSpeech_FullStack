@@ -1,5 +1,5 @@
 from django.urls import path
-from .user_controller import create_user, login_user, get_users,get_user,reset_password,forgot_password,get_user,reset_password,forgot_password
+from .user_controller import create_user, login_user, get_users,get_user,reset_password,forgot_password
 
 urlpatterns = [
     path("create_user", create_user, name="create_user"),
