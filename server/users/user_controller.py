@@ -114,13 +114,18 @@ def reset_password(request):
      
      
 @csrf_exempt
-def get_user(request, user_id):
-    if request.method != "GET":
+def get_user(request):
+    if request.method != "POST":
         return JsonResponse({"message": "Invalid request method"}, status=405)
 
     try:
+        
+        data = json.loads(request.body)
+        print(data)
+        user_id = data["userId" ]
+        print("user id recived", user_id)
         user = User.objects.filter(_id=user_id).values(
-            "id", "fullName", "email", "sq1", "sa1", "sq2", "sa2", "admin"
+            "_id", "fullName", "email", "sq1", "sa1", "sq2", "sa2", "admin"
         ).first()  # Excludes password
             
         if not user:
@@ -137,6 +142,38 @@ class MongoJSONEncoder(json.JSONEncoder):
         if isinstance(obj, ObjectId):
             return str(obj)  # Convert ObjectId to string
         return super().default(obj)
+
+@csrf_exempt
+@isAuthenticated 
+def update_user(request):
+    if request.method == "POST":
+        try:
+            # Parse the incoming data
+            data = json.loads(request.body)
+            print(data)
+            # Extract the user ID and ensure it is provided
+            user_id = data.get("userId")
+            if not user_id:
+                return JsonResponse({"message": "User ID is required"}, status=400)
+            
+            # Retrieve the user by _id (since you're using MongoDB)
+            user = User.objects.filter(_id=user_id).first()
+           
+            if not user:
+                return JsonResponse({"message": "User not found"}, status=404)
+
+            user.fullName = data.get("fullName")
+            user.email = data.get("email")
+            user.save()
+            return JsonResponse({"message": "User updated successfully", "success": True}, status=200)
+
+        except Exception as e:
+            print(e)
+            return JsonResponse({"message": str(e)}, status=400)
+
+    else:
+        return JsonResponse({"message": "Invalid request method"}, status=405)
+
 
 @isAuthenticated
 def get_users(request):

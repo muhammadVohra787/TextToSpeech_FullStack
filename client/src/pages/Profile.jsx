@@ -1,186 +1,154 @@
 import React, { useEffect, useState } from 'react';
+import { Button, TextField, Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, CircularProgress } from '@mui/material';
+import useIsAuthenticated from "react-auth-kit/hooks/useIsAuthenticated";
+import useAuthUser from "react-auth-kit/hooks/useAuthUser";
+import { usePostAuthenticated } from '../api/tanstack-get-post';
 
 const ProfilePage = () => {
-  useEffect(() => {
-    document.body.style.backgroundColor = 'white';
-    document.body.style.color = 'black';
-    document.body.style.display = 'flex';
-    document.body.style.justifyContent = 'center';
-    document.body.style.alignItems = 'center';
-    document.body.style.minHeight = '100vh';
-
-    return () => {
-      document.body.style.backgroundColor = '';
-      document.body.style.color = '';
-      document.body.style.display = '';
-      document.body.style.justifyContent = '';
-      document.body.style.alignItems = '';
-      document.body.style.minHeight = '';
-    };
-  }, []);
-
+  const authUser = useAuthUser();
+  const userId = authUser?.user_id;
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState("John Doe");
-  const [email, setEmail] = useState("johndoe@example.com");
-  const [tempName, setTempName] = useState(name);
-  const [tempEmail, setTempEmail] = useState(email);
+  const [userData, setUserData] = useState({ name: "", email: "" });
+  const { isPending: gettingUserData, mutateAsync: getUser } = usePostAuthenticated();
+  const { isPending: updatingUserData, mutateAsync: updateUser } = usePostAuthenticated();
 
+  // Fetch user data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await getUser({ postData: { userId }, url: "users/get_user" });
+        setUserData({
+          name: res?.data?.user?.fullName || "",
+          email: res?.data?.user?.email || "",
+        });
+      } catch (error) {
+        console.error("Error fetching user:", error.message);
+      }
+    };
+    fetchData();
+  }, [getUser, userId]);
+
+  // Handle Update/Edit
   const handleUpdate = () => {
-    setTempName(name);
-    setTempEmail(email);
     setIsEditing(true);
   };
 
-  const handleSave = () => {
-    setName(tempName);
-    setEmail(tempEmail);
+  // Handle Save
+  const handleSave = async () => {
+    console.log({ userId: userId, fullName: userData?.name, email: userData?.email })
+    try {
+      const res = await updateUser({ postData: { userId: userId, fullName: userData?.name, email: userData?.email }, url: "users/update_user" });
+      console.log(res)
+    } catch (error) {
+      setUserData({ name: userData.name, email: userData.email });
+      console.error("Error updating user:", error.message);
+    }
+  
     setIsEditing(false);
+  
   };
 
+  // Handle Cancel
   const handleCancel = () => {
-    setTempName(name);
-    setTempEmail(email);
     setIsEditing(false);
+    // Reset to initial user data (in case of cancel)
+    setUserData({ name: userData.name, email: userData.email });
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', height: '100vh', width: '100vw', paddingTop: '50px' }}>
-      <div style={{
-        textAlign: 'center',
-        maxWidth: '400px',
-        width: '100%',
-        padding: '20px',
-        background: 'white',
-        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-        borderRadius: '10px'
-      }}>
-        <img 
-          src="https://cdn-icons-png.flaticon.com/512/847/847969.png" 
-          alt="User Profile" 
-          style={{
-            width: '100px',
-            height: '100px',
-            borderRadius: '50%',
-            marginBottom: '20px'
-          }} 
-        />
+    <Box sx={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'column', display: 'flex' }}>
+      {!gettingUserData && !updatingUserData ? (
+        <>
+          <Paper sx={{ textAlign: 'center', maxWidth: 600, width: '100%', padding: 3, boxShadow: 2, borderRadius: 2 }}>
+            {/* Username */}
+            <Typography variant="h4" sx={{ marginBottom: 3 }}>
+              {userData.name.split(" ")[0]}'s Profile
+            </Typography>
 
-        {/* Name Field */}
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', fontSize: '16px', fontWeight: 'bold', color: 'black', marginBottom: '5px' }}>
-            Name
-          </label>
-          <input
-            type="text"
-            value={tempName}
-            onChange={(e) => setTempName(e.target.value)}
-            disabled={!isEditing}
-            style={{
-              width: '100%',
-              padding: '10px',
-              fontSize: '16px',
-              borderRadius: '10px',
-              border: '1px solid #ccc',
-              backgroundColor: isEditing ? 'white' : '#F3F4F6',
-              color: 'black',
-              textAlign: 'center',
-              outline: 'none',
-              cursor: isEditing ? 'text' : 'default'
-            }}
-          />
-        </div>
+            {/* Name Field */}
+            <TextField
+              label="Name"
+              value={userData.name}
+              onChange={(e) => setUserData((prevData) => ({ ...prevData, name: e.target.value }))}
+              disabled={!isEditing}
+              fullWidth
+              variant="outlined"
+              sx={{ marginBottom: 2 }}
+            />
 
-        {/* Email Field */}
-        <div>
-          <label style={{ display: 'block', fontSize: '16px', fontWeight: 'bold', color: 'black', marginBottom: '5px' }}>
-            Email
-          </label>
-          <input
-            type="email"
-            value={tempEmail}
-            onChange={(e) => setTempEmail(e.target.value)}
-            disabled={!isEditing}
-            style={{
-              width: '100%',
-              padding: '10px',
-              fontSize: '16px',
-              borderRadius: '10px',
-              border: '1px solid #ccc',
-              backgroundColor: isEditing ? 'white' : '#F3F4F6',
-              color: 'black',
-              textAlign: 'center',
-              outline: 'none',
-              cursor: isEditing ? 'text' : 'default'
-            }}
-          />
-        </div>
+            {/* Email Field */}
+            <TextField
+              label="Email"
+              type="email"
+              value={userData.email}
+              onChange={(e) => setUserData((prevData) => ({ ...prevData, email: e.target.value }))}
+              disabled={!isEditing}
+              fullWidth
+              variant="outlined"
+              sx={{ marginBottom: 2, mt: 2 }}
+            />
 
-        {/* Buttons */}
-        <div style={{ marginTop: '20px' }}>
-          {!isEditing ? (
-            <button
-              onClick={handleUpdate}
-              style={{
-                padding: '10px 20px',
-                fontSize: '16px',
-                fontWeight: 'bold',
-                color: 'white',
-                backgroundColor: '#6B46C1',
-                border: 'none',
-                borderRadius: '25px',
-                cursor: 'pointer',
-                transition: 'background 0.3s ease'
-              }}
-              onMouseOver={(e) => e.target.style.backgroundColor = '#553C9A'}
-              onMouseOut={(e) => e.target.style.backgroundColor = '#6B46C1'}
-            >
-              Update
-            </button>
-          ) : (
-            <>
-              <button
-                onClick={handleSave}
-                style={{
-                  padding: '10px 20px',
-                  fontSize: '16px',
-                  fontWeight: 'bold',
-                  color: 'white',
-                  backgroundColor: '#38A169',
-                  border: 'none',
-                  borderRadius: '25px',
-                  cursor: 'pointer',
-                  transition: 'background 0.3s ease',
-                  marginRight: '10px'
-                }}
-                onMouseOver={(e) => e.target.style.backgroundColor = '#2F855A'}
-                onMouseOut={(e) => e.target.style.backgroundColor = '#38A169'}
-              >
-                Save
-              </button>
+            {/* Buttons */}
+            <Box sx={{ marginTop: 2 }}>
+              {!isEditing ? (
+                <Button
+                  onClick={handleUpdate}
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                >
+                  Update
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    onClick={handleSave}
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                  >
+                    Save
+                  </Button>
+                  <Button
+                    onClick={handleCancel}
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    sx={{ mt: 2 }}
+                  >
+                    Cancel
+                  </Button>
+                </>
+              )}
+            </Box>
+          </Paper>
 
-              <button
-                onClick={handleCancel}
-                style={{
-                  padding: '10px 20px',
-                  fontSize: '16px',
-                  fontWeight: 'bold',
-                  color: 'white',
-                  backgroundColor: '#E53E3E',
-                  border: 'none',
-                  borderRadius: '25px',
-                  cursor: 'pointer',
-                  transition: 'background 0.3s ease'
-                }}
-                onMouseOver={(e) => e.target.style.backgroundColor = '#C53030'}
-                onMouseOut={(e) => e.target.style.backgroundColor = '#E53E3E'}
-              >
-                Cancel
-              </button>
-            </>
-          )}
-        </div>
-      </div>
-    </div>
+          <Paper sx={{ textAlign: 'center', maxWidth: 600, width: '100%', padding: 3, boxShadow: 2, borderRadius: 2, mt: 4 }}>
+
+            {/* Table */}
+
+            <TableContainer sx={{ marginTop: 1, marginBottom: 3 }}>
+              <Typography variant='h6'>Saved Recordings</Typography>
+              <Table sx={{ mt: 3 }}>
+                <TableHead>
+                  <TableRow>
+                    <TableCell align="left" sx={{ fontWeight: 'bold' }}>Sentence</TableCell>
+                    <TableCell align="left" sx={{ fontWeight: 'bold' }}>MP3 File</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 'bold' }}>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {/* Map through rows data */}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
+        </>
+
+      )
+        : (<CircularProgress color='secondary' sx={{mt:10}}  size={80}/>)
+      }
+    </Box>
   );
 };
 

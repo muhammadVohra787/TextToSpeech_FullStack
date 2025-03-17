@@ -58,14 +58,14 @@ const SignInPage = () => {
         text: res.data.message,
         success: res.data.success,
       });
-
+      console.log(res)
       if (res.data.success) {
         signInContext({
           expireIn: res.data.expires,
           userState: {
-            user_id: res.data?.student?._id,
-            role: res.data?.student?.admin ? "admin" : "student",
-            name: res.data?.student?.firstName,
+            user_id: res.data?.user_id,
+            admin: res.data?.admin,
+       
           },
           auth: {
             token: res.data.token,
@@ -75,7 +75,7 @@ const SignInPage = () => {
 
         const redirectTo =
           location.state?.from?.pathname ||
-          (res.data?.student?.admin ? "/dashboard/admin" : "/dashboard/student");
+          (res.data?.student?.admin ? "/profile" : "/profile");
         navigate(redirectTo, { replace: true });
       }
     } catch (error) {

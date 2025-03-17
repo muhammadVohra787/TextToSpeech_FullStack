@@ -8,6 +8,8 @@ import SignInPage from "./pages/SignInPage.jsx";
 import Unauthorized from "./pages/Unauthorized.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Navbar from './components/Navbar';
+import ProfilePage from "./pages/Profile.jsx"
+import TempHome from "./pages/TempHome.jsx";
 // import ProcessText from './components/ProcessText.jsx';
 // import ProcessImage from './components/ProcessImage.jsx';
 // import Home from "./components/Home.jsx";
@@ -30,7 +32,7 @@ function App() {
             <Route path="/dashboard/student" element={<UserDashboard />} />
           </Route> */}
 
-      {/* <Route path="/" element={<Home />} /> */}
+      <Route path="/" element={<TempHome />} />
           {/* <Route path="/text-to-speech" element={<ProcessText />} />
           <Route path="/image-to-speech" element={<ProcessImage />} /> */}
           <Route path="/unauth" element={<Unauthorized/>}></Route>
