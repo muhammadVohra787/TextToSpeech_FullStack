@@ -8,9 +8,8 @@ import SignInPage from "./pages/SignInPage.jsx";
 import Unauthorized from "./pages/Unauthorized.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Navbar from './components/Navbar';
-import ProcessText from './components/ProcessText.jsx';
-import ProcessImage from './components/ProcessImage.jsx';
-import Home from "./components/Home.jsx";
+import TextToSpeech from "./pages/Dashboard.jsx";
+import ProfilePage from "./pages/Profile.jsx";
 function App() {
   return (
     <ThemeProvider theme={theme}>
@@ -21,7 +20,7 @@ function App() {
         <Routes>
 
           <Route path="/login" element={<SignInPage />} />
-          {/* <Route path="/" element={<SignUpPage firstPage={true} />}></Route> */}
+          <Route path="/" element={<SignUpPage firstPage={true} />}></Route>
           {/* <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
             <Route path="/dashboard/admin" element={<AdminDashboard />} />
           </Route>
@@ -29,11 +28,9 @@ function App() {
           <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
             <Route path="/dashboard/student" element={<UserDashboard />} />
           </Route> */}
-
-      <Route path="/" element={<Home />} />
-          <Route path="/text-to-speech" element={<ProcessText />} />
-          <Route path="/image-to-speech" element={<ProcessImage />} />
+          <Route path="/dashboard/student" element={<TextToSpeech />} />
           <Route path="/unauth" element={<Unauthorized/>}></Route>
+          <Route path="/profile" element={<ProfilePage />} /> 
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
@@ -42,3 +39,4 @@ function App() {
 }
 
 export default App;
+
