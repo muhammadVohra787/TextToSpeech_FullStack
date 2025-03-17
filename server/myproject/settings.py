@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'users',
     'storage',
     'corsheaders',
-    'tts'
+    # 'tts'
 ]
 
 MIDDLEWARE = [
