@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TextField, Container, Stack, Paper, Button, Modal, Box, Typography, MenuItem, CircularProgress, LinearProgress } from '@mui/material';
+import { TextField, Container, Stack, Paper, Button, Modal, Box, Typography, MenuItem, CircularProgress, LinearProgress, Link } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { usePost } from '../api/tanstack-get-post.js';
 import { useNavigate } from 'react-router-dom';
@@ -262,7 +262,12 @@ const SignUp = () => {
           </Stack>
         </Stack>
       )}
-
+      <Typography sx={{ mt: 2 }}>
+        Already have an account?{" "}
+        <Link href="/login" underline="hover" sx={{ color: "white" }}>
+          Login here
+        </Link>
+      </Typography>
       <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
         <Box sx={modalStyle}>
           <Typography variant="h6">{modalMessage}</Typography>

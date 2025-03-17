@@ -23,7 +23,7 @@ function App() {
         <Routes>
 
           <Route path="/login" element={<SignInPage />} />
-          <Route path="/signUp" element={<SignUpPage firstPage={true} />}></Route>
+          <Route path="/" element={<SignUpPage firstPage={true} />}></Route>
           {/* <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
             <Route path="/dashboard/admin" element={<AdminDashboard />} />
           </Route>
