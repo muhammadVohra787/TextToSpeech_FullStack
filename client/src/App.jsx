@@ -21,7 +21,7 @@ function App() {
         <Routes>
 
           <Route path="/login" element={<SignInPage />} />
-          <Route path="/signUp" element={<SignUpPage firstPage={true} />}></Route>
+          {/* <Route path="/" element={<SignUpPage firstPage={true} />}></Route> */}
           {/* <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
             <Route path="/dashboard/admin" element={<AdminDashboard />} />
           </Route>
@@ -30,10 +30,11 @@ function App() {
             <Route path="/dashboard/student" element={<UserDashboard />} />
           </Route> */}
 
-      {/* <Route path="/" element={<Home />} /> */}
-          {/* <Route path="/text-to-speech" element={<ProcessText />} />
-          <Route path="/image-to-speech" element={<ProcessImage />} /> */}
+      <Route path="/" element={<Home />} />
+          <Route path="/text-to-speech" element={<ProcessText />} />
+          <Route path="/image-to-speech" element={<ProcessImage />} />
           <Route path="/unauth" element={<Unauthorized/>}></Route>
+          <Route path="/profile" element={<ProfilePage />} /> 
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
@@ -42,3 +43,4 @@ function App() {
 }
 
 export default App;
+
