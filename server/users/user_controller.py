@@ -57,7 +57,7 @@ def login_user(request):
             }
             token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
  
-            return JsonResponse({"token": token, "user_id": str(user._id), "admin" : user.admin, "success": True}, status=200)
+            return JsonResponse({"token": token, "user_id": str(user._id), "email" : str(user.email), "admin" : user.admin, "success": True}, status=200)
 
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
@@ -69,39 +69,67 @@ def forgot_password(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            email = data["email"]
-            sq1=data["sq1"]
-            sa1=data["sa1"]
-            sq2=data["sq2"]
-            sa2=data["sa2"]
-            password = data["password"]
-            
+            email = data.get("email")
+            sq1=data.get("sq1")
+            sa1=data.get("sa1")
+            sq2=data.get("sq2")
+            sa2=data.get("sa2")
+            password = data.get("password")
             user = User.objects.filter(email= email).first()
             if user is None:
                 return JsonResponse({"message": "Invalid credentials, Check your email password"}, status=401)
-            
+
             if user.sa1 == sa1 and user.sa2 ==sa2:
                 user.password = make_password(password)
                 user.save()
-                
-            return JsonResponse({"message": "Password changed", "success": True}, status=201)
+                return JsonResponse({"message": "Password changed", "success": True}, status=201)
+            else:
+                return JsonResponse({"message": "Questions do not match", "success": False}, status=404)
+            
         except Exception as e:
+            print(e)
             return JsonResponse({"message": str(e)}, status=400)
     else:
         return JsonResponse({"message": "Invalid request method"}, status=405)        
  
+ 
 @csrf_exempt
+def get_questions_by_email(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            email = data.get("email")
+
+            user = User.objects.filter(email=email).values("sq1", "sq2").first()
+
+            if user is None:
+                print("no user found")
+                return JsonResponse({"message": "Email does not exist"}, status=404)  # Changed status code to 404
+
+            # Return the questions in a proper dictionary format
+            return JsonResponse({"sq1": user.get("sq1"), "sq2": user.get("sq2")}, status=200)
+
+        except Exception as e:
+            print(str(e))
+            return JsonResponse({"message": str(e)}, status=400)
+    
+    return JsonResponse({"message": "Invalid request method"}, status=405)
+
+
+@csrf_exempt
+@isAuthenticated
 def reset_password(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            email = data["email"]
-            old_password = data["oldPassword"]
-            new_password = data["newPassword"]
-            user = User.objects.filter(email= email).first()
-            
+            userId = data.get("userId")
+            email = data.get("email")
+            old_password = data.get("old_password")
+            new_password = data.get("new_password")
+            user = User.objects.filter(_id= userId).first()
+            print(data)
             if not user or not check_password(old_password, user.password):
-                return JsonResponse({"message": "Invalid credentials, Check your email password"}, status=401)
+                return JsonResponse({"message": "Invalid credentials, passwords do not match"}, status=401)
             user.password = make_password(new_password)
             user.save()
                 

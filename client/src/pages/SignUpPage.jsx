@@ -264,7 +264,7 @@ const SignUp = () => {
       )}
       <Typography sx={{ mt: 2 }}>
         Already have an account?{" "}
-        <Link href="/login" underline="hover" sx={{ color: "white" }}>
+        <Link href="/" underline="hover" sx={{ color: "white" }}>
           Login here
         </Link>
       </Typography>

@@ -43,9 +43,9 @@ const ProfilePage = () => {
       setUserData({ name: userData.name, email: userData.email });
       console.error("Error updating user:", error.message);
     }
-  
+
     setIsEditing(false);
-  
+
   };
 
   // Handle Cancel
@@ -91,14 +91,25 @@ const ProfilePage = () => {
             {/* Buttons */}
             <Box sx={{ marginTop: 2 }}>
               {!isEditing ? (
-                <Button
-                  onClick={handleUpdate}
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                >
-                  Update
-                </Button>
+                <>
+                  <Button
+                    onClick={handleUpdate}
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                  >
+                    Update info
+                  </Button>
+                  <Button
+                    onClick={() => navigate(`/resetPassword`)}
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    sx={{mt:2,mb:1}}
+                  >
+                    Reset Password
+                  </Button></>
+
               ) : (
                 <>
                   <Button
@@ -120,6 +131,7 @@ const ProfilePage = () => {
                   </Button>
                 </>
               )}
+
             </Box>
           </Paper>
 
@@ -146,7 +158,7 @@ const ProfilePage = () => {
         </>
 
       )
-        : (<CircularProgress color='secondary' sx={{mt:10}}  size={80}/>)
+        : (<CircularProgress color='secondary' sx={{ mt: 10 }} size={80} />)
       }
     </Box>
   );
