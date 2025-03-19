@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { useDropzone } from 'react-dropzone'; // Importing useDropzone for drag and drop
 import './ProcessImage.css'; // Ensure you have a CSS file for styling
-
+import { Alert } from '@mui/material';
 const ProcessImage = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [audioUrls, setAudioUrls] = useState([]);
@@ -10,12 +11,25 @@ const ProcessImage = () => {
   const [error, setError] = useState(null);
   const [extractedText, setExtractedText] = useState('');
 
-  // Handle file selection
+  // Handle file selection through file picker
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
     setAudioUrls([]); // Clear previous results
     setExtractedText('');
   };
+
+  // // Handle file drop (Drag and Drop)
+  // const onDrop = useCallback((acceptedFiles) => {
+  //   setSelectedFile(acceptedFiles[0]);
+  //   setAudioUrls([]); // Clear previous results
+  //   setExtractedText('');
+  // }, []);
+
+  // const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  //   onDrop,
+  //   accept: 'image/jpeg, image/png, image/jpg', // Accept only valid image types
+  //   multiple: false, // Only allow one file to be dropped
+  // });
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -46,8 +60,8 @@ const ProcessImage = () => {
         // Construct proper URLs for audio files
         const audioPaths = response.data.data.map(item => {
           const fileName = item.Mp3_Path.split('/').pop(); // Get only the file name
-          console.log(`http://127.0.0.1:8000/media/${fileName}`);
-          return `http://127.0.0.1:8000/media/${fileName}`; // Ensure correct path
+          console.log(`http://127.0.0.1:8000/tts/media/${fileName}`);
+          return `http://127.0.0.1:8000/tts/media/${fileName}`; // Ensure correct path
         });
 
         setAudioUrls(audioPaths);
@@ -64,14 +78,27 @@ const ProcessImage = () => {
 
   return (
     <div className="process-image">
-      <Link to="/" className="home-link">
-        <button className="home-button">🏠 Home</button>
-      </Link>
 
+      <Alert severity='error'>Page is not ready for final review</Alert>
       <h1>Upload an Image for OCR & TTS</h1>
 
       <form onSubmit={handleSubmit}>
-        <input type="file" accept="image/*" onChange={handleFileChange} disabled={loading} />
+        {/* Drag and Drop or File Picker */}
+        {/* <div {...getRootProps()} className="dropzone">
+          <input {...getInputProps()} />
+          {isDragActive ? (
+            <p>Drop the files here ...</p>
+          ) : (
+            <p>Drag 'n' drop an image here, or click to select a file</p>
+          )}
+        </div> */}
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          disabled={loading}
+          className="file-input"
+        />
         <button type="submit" disabled={loading || !selectedFile}>
           {loading ? 'Processing...' : 'Upload & Process'}
         </button>

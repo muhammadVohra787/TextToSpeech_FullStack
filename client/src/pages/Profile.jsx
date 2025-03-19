@@ -57,6 +57,8 @@ const ProfilePage = () => {
 
   return (
     <Box sx={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'column', display: 'flex' }}>
+      {!userId && <h1>Not logged in</h1>}
+      
       {!gettingUserData && !updatingUserData ? (
         <>
           <Paper sx={{ textAlign: 'center', maxWidth: 600, width: '100%', padding: 3, boxShadow: 2, borderRadius: 2 }}>

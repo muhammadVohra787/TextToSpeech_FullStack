@@ -12,12 +12,9 @@ import ProfilePage from "./pages/Profile.jsx"
 import TempHome from "./pages/TempHome.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
-// import ProcessText from './components/ProcessText.jsx';
-// import ProcessImage from './components/ProcessImage.jsx';
-// import Home from "./components/Home.jsx";
-import ProcessText from './components/ProcessText.jsx';
+import ProcessText from './pages/ProcessText.jsx';
 import ProcessImage from './components/ProcessImage.jsx';
-import Home from "./components/Home.jsx";
+
 function App() {
   return (
     <ThemeProvider theme={theme}>
@@ -27,8 +24,9 @@ function App() {
         <br></br>
         <Routes>
 
-          <Route path="/" element={<SignInPage />} />
-          {/* <Route path="/signUp" element={<SignUpPage firstPage={true} />}></Route> */}
+          <Route path="/" element={<TempHome />} />
+          <Route path="/login" element={<SignInPage />} />
+          <Route path="/signUp" element={<SignUpPage/>}></Route>
           {/* <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
             <Route path="/dashboard/admin" element={<AdminDashboard />} />
           </Route>
@@ -36,15 +34,11 @@ function App() {
           <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
             <Route path="/dashboard/student" element={<UserDashboard />} />
           </Route> */}
-
-      <Route path="/" element={<Home />} />
-          <Route path="/text-to-speech" element={<ProcessText />} />
-          <Route path="/image-to-speech" element={<ProcessImage />} />
+        
+          <Route path="/textToSpeech" element={<ProcessText />} />
+          <Route path="/imageToSpeech" element={<ProcessImage />} />
           <Route path="/forgotPassword" element={<ForgotPassword />} />
           <Route path="/resetPassword" element={<ResetPassword />} />
-          {/* <Route path="/" element={<TempHome />} /> */}
-          {/* <Route path="/text-to-speech" element={<ProcessText />} />
-          <Route path="/image-to-speech" element={<ProcessImage />} /> */}
           <Route path="/unauth" element={<Unauthorized />}></Route>
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="*" element={<NotFound />} />
