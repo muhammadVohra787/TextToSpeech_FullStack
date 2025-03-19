@@ -15,6 +15,9 @@ import ResetPassword from "./pages/ResetPassword.jsx";
 // import ProcessText from './components/ProcessText.jsx';
 // import ProcessImage from './components/ProcessImage.jsx';
 // import Home from "./components/Home.jsx";
+import ProcessText from './components/ProcessText.jsx';
+import ProcessImage from './components/ProcessImage.jsx';
+import Home from "./components/Home.jsx";
 function App() {
   return (
     <ThemeProvider theme={theme}>
@@ -25,7 +28,7 @@ function App() {
         <Routes>
 
           <Route path="/" element={<SignInPage />} />
-          <Route path="/signUp" element={<SignUpPage firstPage={true} />}></Route>
+          {/* <Route path="/signUp" element={<SignUpPage firstPage={true} />}></Route> */}
           {/* <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
             <Route path="/dashboard/admin" element={<AdminDashboard />} />
           </Route>
@@ -33,6 +36,10 @@ function App() {
           <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
             <Route path="/dashboard/student" element={<UserDashboard />} />
           </Route> */}
+
+      <Route path="/" element={<Home />} />
+          <Route path="/text-to-speech" element={<ProcessText />} />
+          <Route path="/image-to-speech" element={<ProcessImage />} />
           <Route path="/forgotPassword" element={<ForgotPassword />} />
           <Route path="/resetPassword" element={<ResetPassword />} />
           {/* <Route path="/" element={<TempHome />} /> */}
