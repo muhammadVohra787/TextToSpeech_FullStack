@@ -28,13 +28,20 @@
    ```sh
    pip install -r requirements.txt
    ```
-
-4. **Run the Django development server**  
+   
+4. **Run the Django development server with makemigrations**  
+   ```sh
+   python manage.py makemigrations
+   ```
+   
+5. **Run the Django development server**  
    ```sh
    python manage.py runserver
    ```
 
 ✅ Your server should now be running at **http://localhost:5173** 🚀
+
+If you're still encountering any error, run the VS Code as administrator
 ```
 
 ```
@@ -46,3 +53,5 @@ server => python manage.py runserver
 client => npm run dev
 
 ```
+
+
