@@ -87,8 +87,9 @@ def process_text(request):
                 return JsonResponse({'error': 'No text provided'}, status=400)
 
             # Split text into sentences
-            sentences = [s.strip() for s in re.split(r'[.!?,;]', text) if s.strip()]
-
+            #sentences = [s.strip() for s in re.split(r'[.!?,;]', text) if s.strip()]
+            sentences = split_sentences(text)
+            print(sentences)
             # Process sentences
             new_entries = []
             for sentence in sentences:
@@ -149,3 +150,31 @@ def list_processed(request):
         return JsonResponse({'message': 'Processed sentences', 'data': data}, status=200)
     else:
         return JsonResponse({'message': 'No processed sentences found'}, status=200)
+
+def split_sentences(text):
+    sentences = [s.strip() for s in re.split(r'[.!?,;]', text) if s.strip()]
+    
+    result = []
+    temp_sentence = None
+
+    for i in range(len(sentences)):
+        sentence = sentences[i]
+
+        if len(sentence.split()) < 6:
+            # If it's short, merge it with the next sentence
+            if temp_sentence:
+                temp_sentence += " " + sentence
+            else:
+                temp_sentence = sentence
+        else:
+            # If it's long enough, add temp_sentence (if any) and the current sentence
+            if temp_sentence:
+                result.append(temp_sentence)
+                temp_sentence = None
+            result.append(sentence)
+
+    # Append any remaining temp_sentence
+    if temp_sentence:
+        result.append(temp_sentence)
+
+    return result
