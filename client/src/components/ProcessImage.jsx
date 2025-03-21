@@ -1,35 +1,22 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
-import { useDropzone } from 'react-dropzone'; // Importing useDropzone for drag and drop
-import './ProcessImage.css'; // Ensure you have a CSS file for styling
 import { Alert } from '@mui/material';
+import WavEncoder from 'wav-encoder'; // Import the wav-encoder library
+
 const ProcessImage = () => {
   const [selectedFile, setSelectedFile] = useState(null);
-  const [audioUrls, setAudioUrls] = useState([]);
+  const [audioUrl, setAudioUrl] = useState(''); // Store the final combined audio URL
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [extractedText, setExtractedText] = useState('');
 
+
   // Handle file selection through file picker
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
-    setAudioUrls([]); // Clear previous results
     setExtractedText('');
+    setAudioUrl(''); // Clear the combined audio URL
   };
-
-  // // Handle file drop (Drag and Drop)
-  // const onDrop = useCallback((acceptedFiles) => {
-  //   setSelectedFile(acceptedFiles[0]);
-  //   setAudioUrls([]); // Clear previous results
-  //   setExtractedText('');
-  // }, []);
-
-  // const { getRootProps, getInputProps, isDragActive } = useDropzone({
-  //   onDrop,
-  //   accept: 'image/jpeg, image/png, image/jpg', // Accept only valid image types
-  //   multiple: false, // Only allow one file to be dropped
-  // });
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -60,11 +47,12 @@ const ProcessImage = () => {
         // Construct proper URLs for audio files
         const audioPaths = response.data.data.map(item => {
           const fileName = item.Mp3_Path.split('/').pop(); // Get only the file name
-          console.log(`http://127.0.0.1:8000/tts/media/${fileName}`);
           return `http://127.0.0.1:8000/tts/media/${fileName}`; // Ensure correct path
         });
 
-        setAudioUrls(audioPaths);
+
+        // Combine the audio files into one
+        combineAudioFiles(audioPaths);
       } else {
         setError('No text detected in the image.');
       }
@@ -76,22 +64,62 @@ const ProcessImage = () => {
     }
   };
 
+  // Function to combine multiple audio files into one
+  const combineAudioFiles = async (audioPaths) => {
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const buffers = [];
+
+      // Fetch and decode each audio file
+      for (let i = 0; i < audioPaths.length; i++) {
+        const response = await fetch(audioPaths[i]);
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+        buffers.push(audioBuffer);
+      }
+
+      // Calculate the total length of the combined audio
+      const totalLength = buffers.reduce((acc, buffer) => acc + buffer.length, 0);
+      const combinedBuffer = audioContext.createBuffer(2, totalLength, audioContext.sampleRate);
+
+      let offset = 0;
+      buffers.forEach(buffer => {
+        for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
+          combinedBuffer.getChannelData(channel).set(buffer.getChannelData(channel), offset);
+        }
+        offset += buffer.length;
+      });
+
+      // Encode the combined audio buffer into WAV format
+      const wavData = await WavEncoder.encode({
+        sampleRate: audioContext.sampleRate,
+        channelData: [combinedBuffer.getChannelData(0), combinedBuffer.getChannelData(1)],
+      });
+
+      // Create a Blob from the WAV data
+      const audioBlob = new Blob([wavData], { type: 'audio/wav' });
+
+      // Create a URL for the audio Blob
+      const combinedAudioUrl = URL.createObjectURL(audioBlob);
+
+      // Set the audio URL for playback
+      setAudioUrl(combinedAudioUrl);
+
+      // Optionally, play the audio immediately after it's ready
+      const audioElement = new Audio(combinedAudioUrl);
+
+    } catch (err) {
+      console.error('Error combining audio files:', err);
+      setError('Error combining audio files.');
+    }
+  };
+
   return (
     <div className="process-image">
-
-      <Alert severity='error'>Page is not ready for final review</Alert>
+      <Alert severity="error">Page is not ready for final review</Alert>
       <h1>Upload an Image for OCR & TTS</h1>
 
       <form onSubmit={handleSubmit}>
-        {/* Drag and Drop or File Picker */}
-        {/* <div {...getRootProps()} className="dropzone">
-          <input {...getInputProps()} />
-          {isDragActive ? (
-            <p>Drop the files here ...</p>
-          ) : (
-            <p>Drag 'n' drop an image here, or click to select a file</p>
-          )}
-        </div> */}
         <input
           type="file"
           accept="image/*"
@@ -115,18 +143,14 @@ const ProcessImage = () => {
         </div>
       )}
 
-      {audioUrls.length > 0 && (
+      {/* Combined Audio Section */}
+      {audioUrl && (
         <div>
-          <h2>Generated Audio:</h2>
-          {audioUrls.map((url, index) => (
-            <div key={index}>
-              <audio controls>
-                <source src={url} type="audio/wav" />
-                Your browser does not support the audio element.
-              </audio>
-              <p>Audio {index + 1}</p>
-            </div>
-          ))}
+          <h2>Combined Audio:</h2>
+          <audio controls>
+            <source src={audioUrl} type="audio/wav" />
+            Your browser does not support the audio element.
+          </audio>
         </div>
       )}
     </div>

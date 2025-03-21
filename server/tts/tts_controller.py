@@ -29,6 +29,8 @@ reader = easyocr.Reader(['en'])
 # Load the TTS models once
 fastspeech2 = FastSpeech2.from_hparams(source="speechbrain/tts-fastspeech2-ljspeech", savedir="./tts/pretrained_models/tts-fastspeech2-ljspeech")
 hifi_gan = HIFIGAN.from_hparams(source="speechbrain/tts-hifigan-ljspeech", savedir="./tts/pretrained_models/tts-hifigan-ljspeech")
+
+print("########## MOODELS LOADED ############")
 @permission_classes([AllowAny])
 @csrf_exempt
 def generate_audio_from_text(sentence):
@@ -87,7 +89,6 @@ def process_text(request):
                 return JsonResponse({'error': 'No text provided'}, status=400)
 
             # Split text into sentences
-            #sentences = [s.strip() for s in re.split(r'[.!?,;]', text) if s.strip()]
             sentences = split_sentences(text)
             print(sentences)
             # Process sentences
@@ -113,7 +114,7 @@ def process_image(request):
     if request.method == 'POST' and request.FILES.get('image'):
         try:
             image_file = request.FILES['image']
-            image = Image.open(io.BytesIO(image_file.read()))
+            image = Image.open(io.BytesIO(image_file.read())).convert('L')
 
             # Extract text using OCR
             result = reader.readtext(np.array(image))
@@ -125,9 +126,9 @@ def process_image(request):
             print(f"OCR Extracted Text: {text}")
 
             # Process extracted text
-            sentences = [s.strip() for s in re.split(r'[.!?,;]', text) if s.strip()]
             new_entries = []
-
+            sentences = split_sentences(text)
+            print(sentences)
             for sentence in sentences:
                 file_path = generate_audio_from_text(sentence)
                 new_entries.append({"Sentence": sentence, "Mp3_Path": file_path})
@@ -135,6 +136,7 @@ def process_image(request):
             return JsonResponse({'message': 'Processing completed', 'data': new_entries})
 
         except Exception as e:
+            print(e)
             return JsonResponse({'error': str(e)}, status=500)
 
     return JsonResponse({'error': 'Invalid request or missing image file'}, status=400)
