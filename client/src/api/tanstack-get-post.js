@@ -11,11 +11,11 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const usePost = () => {
   const authHeader = useAuthHeader()
-
   const { isPending, mutateAsync, isSuccess } = useMutation({
     mutationFn: async ({ postData, url }) => {
       try {
         await wait(2000);
+        console.log("sending post to", url)
         const res = await axios.post(`${API_URL}/${url}`, postData);
         return res;
       } catch (error) {
@@ -28,6 +28,7 @@ export const usePost = () => {
 
 export const usePostAuthenticated = () => {
   const authHeader = useAuthHeader()
+  console.log(authHeader)
   const { isPending, mutateAsync, isSuccess } = useMutation({
     mutationFn: async ({ postData, url }) => {
       try {

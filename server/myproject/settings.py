@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'users',
     'storage',
     'corsheaders',
+    'tts'
 ]
 
 MIDDLEWARE = [
@@ -136,5 +137,9 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "https://myfrontend.com",
+    "http://localhost:3000"
 ]
 
+# settings.py
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # default
+SESSION_COOKIE_AGE = 3600  # session will expire after 1 hour of inactivity

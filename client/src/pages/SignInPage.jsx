@@ -8,6 +8,7 @@ import {
   Stack,
   Link,
   CircularProgress,
+  IconButton,
 } from "@mui/material";
 import { usePost } from "../api/tanstack-get-post";
 import useSignIn from "react-auth-kit/hooks/useSignIn";
@@ -58,14 +59,14 @@ const SignInPage = () => {
         text: res.data.message,
         success: res.data.success,
       });
-
+      console.log(res)
       if (res.data.success) {
         signInContext({
           expireIn: res.data.expires,
           userState: {
-            user_id: res.data?.student?._id,
-            role: res.data?.student?.admin ? "admin" : "student",
-            name: res.data?.student?.firstName,
+            user_id: res.data?.user_id,
+            admin: res.data?.admin,
+            email:res.data?.email
           },
           auth: {
             token: res.data.token,
@@ -75,7 +76,7 @@ const SignInPage = () => {
 
         const redirectTo =
           location.state?.from?.pathname ||
-          (res.data?.student?.admin ? "/dashboard/admin" : "/dashboard/student");
+          (res.data?.student?.admin ? "/profile" : "/profile");
         navigate(redirectTo, { replace: true });
       }
     } catch (error) {
@@ -129,10 +130,23 @@ const SignInPage = () => {
 
         <Typography sx={{ mt: 2 }}>
           Don't have an account?{" "}
-          <Link href="/" underline="hover" sx={{ color: "white" }}>
+          <Link href="/signUp" underline="hover" sx={{ color: "white" }}>
             Register here
           </Link>
         </Typography>
+
+        <Typography
+          onClick={() => navigate(`/forgotPassword`)}
+          sx={{
+            mt: 2,
+            textDecoration: "underline",
+            cursor: "pointer",
+            color: "white"
+          }}
+        >
+          Forgot Password?
+        </Typography>
+
       </Paper>
     </Container>
   );

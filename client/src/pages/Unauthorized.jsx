@@ -42,7 +42,7 @@ const Unauthorized = () => {
         variant="contained"
         color="primary"
         sx={{ mt: 3 }}
-        onClick={() => navigate("/login")}
+        onClick={() => navigate("/")}
       >
         Go to Login Now
       </Button>
