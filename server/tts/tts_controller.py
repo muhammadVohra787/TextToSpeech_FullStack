@@ -80,53 +80,16 @@ def generate_audio_from_text(sentence):
     print(f"Generated audio for: '{sentence}' → {file_path}")
     return file_path
 
-# @permission_classes([AllowAny])
-# @csrf_exempt
-# def process_text(request):
-#     """
-#     API endpoint to process text and generate TTS audio.
-#     """
-#     if request.method == 'POST':
-#         try:
-#             data = json.loads(request.body)
-#             text = data.get('text', '').strip()
-
-#             if not text:
-#                 return JsonResponse({'error': 'No text provided'}, status=400)
-
-#             # Split text into sentences
-#             sentences = split_sentences(text)
-#             print(sentences)
-#             # Process sentences
-#             new_entries = []
-#             for sentence in sentences:
-#                 # sentence = sentence.lower()
-#                 file_path = generate_audio_from_text(sentence)
-#                 new_entries.append({"Sentence": sentence, "Mp3_Path": file_path})
-
-#             return JsonResponse({'message': 'Processing completed', 'data': new_entries})
-
-#         except json.JSONDecodeError:
-#             return JsonResponse({'error': 'Invalid JSON'}, status=400)
-
-#     return JsonResponse({'error': 'Invalid request method'}, status=405)
-
-
 # Modified to add the email information
 @permission_classes([AllowAny])
 @csrf_exempt
 def process_text(request):
     if request.method == "POST":
         try:
-            print("did this at line 116")
-            print(f"Session Data: {request.session.items()}")
-            print("Request body:", request.body)  # Debugging the raw body
-            
             data = json.loads(request.body)
             text = data.get("text", "").strip()
             userId = data.get("userId")  # Retrieve email from session
             user = User.objects.get(_id=uuid.UUID(userId))  
-            print("did this at line 120")
 
             if not text:
                 return JsonResponse({"error": "No text provided"}, status=400)
@@ -161,43 +124,6 @@ def process_text(request):
             return JsonResponse({"error": "Invalid JSON"}, status=400)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
-
-
-# @permission_classes([AllowAny])
-# @csrf_exempt
-# def process_image(request):
-#     """
-#     API endpoint to process an uploaded image, extract text using OCR, and generate TTS.
-#     """
-#     if request.method == 'POST' and request.FILES.get('image'):
-#         try:
-#             image_file = request.FILES['image']
-#             image = Image.open(io.BytesIO(image_file.read())).convert('L')
-
-#             # Extract text using OCR
-#             result = reader.readtext(np.array(image))
-#             text = " ".join([word[1] for word in result]).strip()
-
-#             if not text:
-#                 return JsonResponse({'error': 'No readable text found in image'}, status=400)
-
-#             print(f"OCR Extracted Text: {text}")
-
-#             # Process extracted text
-#             new_entries = []
-#             sentences = split_sentences(text)
-#             print(sentences)
-#             for sentence in sentences:
-#                 file_path = generate_audio_from_text(sentence)
-#                 new_entries.append({"Sentence": sentence, "Mp3_Path": file_path})
-
-#             return JsonResponse({'message': 'Processing completed', 'data': new_entries})
-
-#         except Exception as e:
-#             print(e)
-#             return JsonResponse({'error': str(e)}, status=500)
-
-#     return JsonResponse({'error': 'Invalid request or missing image file'}, status=400)
 
 @permission_classes([AllowAny])
 @csrf_exempt
@@ -307,3 +233,9 @@ def split_sentences(text):
         result.append(temp_sentence)
 
     return result
+
+@csrf_exempt
+def get_audios_by_userId(request, user_id):  # Add user_id as a parameter
+    # u 
+    print(user_id)
+    return (f"User ID: {user_id}") 

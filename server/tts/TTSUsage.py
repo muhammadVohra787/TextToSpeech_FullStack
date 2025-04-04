@@ -1,4 +1,3 @@
-from mongoengine import Document, StringField, DateTimeField
 from users.user_model import User  # Import the User model
 from django.db import models
 
