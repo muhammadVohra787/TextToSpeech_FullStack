@@ -130,7 +130,7 @@ const ProcessImage = () => {
 
   return (
     <Container sx={{ padding: 2, display: 'flex', justifyContent: 'center', maxWidth: 'lg', width: '100%' }}>
-      <Box className="process-image" >
+      <Box className="process-image" sx={{ width: '100%', overflow: 'hidden' }}>
         <Typography variant="h4" gutterBottom>
           Upload an Image for OCR & TTS
         </Typography>
@@ -147,6 +147,8 @@ const ProcessImage = () => {
             '&:hover': {
               backgroundColor: '#e3f2fd',
             },
+            minWidth: 300, // Prevent shrinkage
+            maxWidth: '100%', // Allow expansion
           }}
           onDragOver={handleDragOver}
           onDrop={handleDrop}
@@ -182,8 +184,9 @@ const ProcessImage = () => {
         </Box>
 
         {/* Loading spinner */}
-        <Box sx={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'column', display: 'flex' }}>{loading && <CircularProgress color='secondary' sx={{ marginTop: 2 }} />}</Box>
-
+        <Box sx={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'column', display: 'flex' }}>
+          {loading && <CircularProgress color="secondary" sx={{ marginTop: 2 }} />}
+        </Box>
 
         {/* Error message */}
         {error && <Alert severity="error" sx={{ marginTop: 2 }}>{error}</Alert>}
@@ -193,6 +196,7 @@ const ProcessImage = () => {
             <Typography variant="body2">{selectedFile.name}</Typography>
           </Box>
         )}
+
         {/* Extracted Text */}
         {extractedText && (
           <Box sx={{ marginTop: 2 }}>
