@@ -14,7 +14,7 @@ def isAuthenticated(view_func):
             token = auth_header.split(" ")[1]
             payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
             user = User.objects.filter(_id=payload["user_id"]).first()  # Use _id instead of id
-
+            print("Is user admin", user.admin)
             if not user:
                 return JsonResponse({"error": "Unauthorized - Invalid token"}, status=401)
 

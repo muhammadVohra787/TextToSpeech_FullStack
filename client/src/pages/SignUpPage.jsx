@@ -32,7 +32,7 @@ const securityQuestions = [
   "What was your first car?"
 ];
 
-const SignUp = () => {
+const SignUp = ({ isCreatingUser, setUserAdded }) => {
   const navigate = useNavigate();
   const { isPending, mutateAsync } = usePost();
   const [step, setStep] = useState(1);
@@ -94,7 +94,19 @@ const SignUp = () => {
         setModalMessage(res.data.message);
         setModalOpen(true);
 
-        if (res.data.success) navigate('/login');
+        if (res.data.success && !isCreatingUser) {
+          navigate('/login');
+        }else{
+          setUserAdded(true)
+        }
+        setSignUp({    fullName: '',
+          email: '',
+          password: '',
+          sq1: '',
+          sa1: '',
+          sq2: '',
+          sa2: '',})
+          setStep(1)
       });
     } catch (error) {
       setModalMessage('Sign-up failed. Please try again.');
@@ -103,9 +115,9 @@ const SignUp = () => {
   };
 
   return (
-    <Container>
+    <Container sx={{mb:10}}>
       <Typography variant="h6" textAlign="center" gutterBottom>
-        Sign Up
+        {!isCreatingUser ? "Sign Up" : "Create User"}
       </Typography>
 
       <LinearProgress
@@ -262,20 +274,23 @@ const SignUp = () => {
           </Stack>
         </Stack>
       )}
-      <Typography sx={{ mt: 2 }}>
-        Already have an account?{" "}
-        <Link href="/" underline="hover" sx={{ color: "white" }}>
-          Login here
-        </Link>
-      </Typography>
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-        <Box sx={modalStyle}>
-          <Typography variant="h6">{modalMessage}</Typography>
-          <Button onClick={() => setModalOpen(false)} sx={{ mt: 2 }} variant="contained">
-            Close
-          </Button>
-        </Box>
-      </Modal>
+      {!isCreatingUser &&
+        <>
+          <Typography sx={{ mt: 2 }}>
+            Already have an account?{" "}
+            <Link href="/" underline="hover" sx={{ color: "white" }}>
+              Login here
+            </Link>
+          </Typography>
+          <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+            <Box sx={modalStyle}>
+              <Typography variant="h6">{modalMessage}</Typography>
+              <Button onClick={() => setModalOpen(false)} sx={{ mt: 2 }} variant="contained">
+                Close
+              </Button>
+            </Box>
+          </Modal></>
+      }
     </Container>
   );
 };

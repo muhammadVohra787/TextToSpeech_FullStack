@@ -55,6 +55,7 @@ const ProcessText = () => {
 
   const combineAudioFiles = async (audioPaths) => {
     try {
+      console.log("filescame")
       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
       const buffers = [];
 
@@ -93,9 +94,6 @@ const ProcessText = () => {
       // Set the audio URL for playback
       setAudioUrl(audioUrl);
 
-      // Optionally, play the audio immediately after it's ready
-      const audioElement = new Audio(audioUrl);
-      // audioElement.play();
     } catch (err) {
       console.error('Error combining audio files:', err);
       setError('Error combining audio files.');
@@ -159,7 +157,7 @@ const ProcessText = () => {
         <Box sx={{ width: '100%', maxWidth: 500 }}>
           <Typography variant="h6">Generated Combined Audio:</Typography>
           <Box sx={{ marginTop: 1, width: '100%' }}>
-            <audio controls style={{ width: '100%' }}>
+            <audio key={audioUrl} controls style={{ width: '100%' }}>
               <source src={audioUrl} type="audio/wav" />
               Your browser does not support the audio element.
             </audio>

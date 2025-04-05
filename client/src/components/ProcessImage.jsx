@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Alert } from '@mui/material';
+import { Alert, Button, Box, Typography, CircularProgress } from '@mui/material';
 import WavEncoder from 'wav-encoder'; // Import the wav-encoder library
 import useAuthUser from 'react-auth-kit/hooks/useAuthUser';
 
@@ -14,10 +14,10 @@ const ProcessImage = () => {
   const [error, setError] = useState(null);
   const [extractedText, setExtractedText] = useState('');
 
-
-  // Handle file selection through file picker
+  // Handle file selection through drag and drop or file picker
   const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
+    const file = e.target.files ? e.target.files[0] : e.dataTransfer.files[0];
+    setSelectedFile(file);
     setExtractedText('');
     setAudioUrl(''); // Clear the combined audio URL
   };
@@ -38,7 +38,6 @@ const ProcessImage = () => {
     formData.append('image', selectedFile);
     formData.append('userId', userId);    // Append the userId to the form data
 
-
     try {
       const response = await axios.post('http://127.0.0.1:8000/api/tts/process_image/', formData, {
         headers: {
@@ -55,7 +54,6 @@ const ProcessImage = () => {
           const fileName = item.Mp3_Path.split('/').pop(); // Get only the file name
           return `http://127.0.0.1:8000/tts/media/${fileName}`; // Ensure correct path
         });
-
 
         // Combine the audio files into one
         combineAudioFiles(audioPaths);
@@ -120,46 +118,93 @@ const ProcessImage = () => {
     }
   };
 
-  return (
-    <div className="process-image">
-      <Alert severity="error">Page is not ready for final review</Alert>
-      <h1>Upload an Image for OCR & TTS</h1>
+  // Handle drag over and drop for the drag-and-drop zone
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
 
-      <form onSubmit={handleSubmit}>
+  const handleDrop = (e) => {
+    e.preventDefault();
+    handleFileChange(e);
+  };
+
+  return (
+    <Box className="process-image" sx={{ padding: 2 }}>
+      <Typography variant="h4" gutterBottom>
+        Upload an Image for OCR & TTS
+      </Typography>
+
+      {/* Drag and Drop Area */}
+      <Box
+        sx={{
+          border: '2px dashed #1976d2',
+          borderRadius: '8px',
+          padding: '20px',
+          textAlign: 'center',
+          cursor: 'pointer',
+          backgroundColor: '#f5f5f5',
+          '&:hover': {
+            backgroundColor: '#e3f2fd',
+          },
+        }}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
+        <Typography variant="body1" color="textSecondary">
+          Drag and drop your image here, or click to select.
+        </Typography>
         <input
           type="file"
           accept="image/*"
           onChange={handleFileChange}
-          disabled={loading}
-          className="file-input"
+          style={{ display: 'none' }}
+          id="file-input"
         />
-        <button type="submit" disabled={loading || !selectedFile}>
+        <label htmlFor="file-input">
+          <Button variant="contained" component="span" sx={{ marginTop: 2 }}>
+            Select Image
+          </Button>
+        </label>
+      </Box>
+
+      {/* Submit button */}
+      <Box sx={{ marginTop: 2 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSubmit}
+          disabled={loading || !selectedFile}
+          sx={{ width: '100%' }}
+        >
           {loading ? 'Processing...' : 'Upload & Process'}
-        </button>
-      </form>
+        </Button>
+      </Box>
 
-      {loading && <div className="spinner"></div>}
+      {/* Loading spinner */}
+      {loading && <CircularProgress sx={{ marginTop: 2 }} />}
 
-      {error && <div className="error-message">{error}</div>}
+      {/* Error message */}
+      {error && <Alert severity="error" sx={{ marginTop: 2 }}>{error}</Alert>}
 
+      {/* Extracted Text */}
       {extractedText && (
-        <div>
-          <h2>Extracted Text:</h2>
-          <p>{extractedText}</p>
-        </div>
+        <Box sx={{ marginTop: 2 }}>
+          <Typography variant="h6">Extracted Text:</Typography>
+          <Typography variant="body1">{extractedText}</Typography>
+        </Box>
       )}
 
       {/* Combined Audio Section */}
       {audioUrl && (
-        <div>
-          <h2>Combined Audio:</h2>
+        <Box sx={{ marginTop: 2 }}>
+          <Typography variant="h6">Combined Audio:</Typography>
           <audio controls>
             <source src={audioUrl} type="audio/wav" />
             Your browser does not support the audio element.
           </audio>
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 };
 

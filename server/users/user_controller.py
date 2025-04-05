@@ -6,8 +6,10 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import make_password, check_password
 from .user_model import User
+from tts.TTSUsage import TTSUsage
 from django.conf import settings
 import uuid
+from django.shortcuts import get_object_or_404
 from .user_middlewares import isAuthenticated, isAdmin
 
 SECRET_KEY = "your_secret_key"  # Change this to a strong key
@@ -49,10 +51,7 @@ def login_user(request):
             user = User.objects.filter(email=email).first()
             if not user or not check_password(password, user.password):
                 return JsonResponse({"message": "Invalid credentials"}, status=401)
-            
-            request.session['user_email'] = user.email
-            print(f"Session Data after login: {request.session.items()}")  # Log session data here
-            
+             
             payload = {
                 "user_id": str(user._id),
                 "email": user.email,
@@ -214,6 +213,150 @@ def get_users(request):
 
     return JsonResponse(users, safe=False, encoder=MongoJSONEncoder)
 
+@csrf_exempt
+@isAuthenticated
+def get_user_recordings(request):
+    if request.method == "POST":
+        try:
+            # Try to get the User object
+            data = json.loads(request.body)
+            print(data)
+            user_id = data.get("userId")
+            # Try to get the User object
+            user = User.objects.get(_id=user_id)
+
+            # Get all related TTSUsage objects for this user
+            tts_usages = user.tts_usages.all()
+
+            # Manually serialize the queryset into a list of dictionaries
+            serialized_data = []
+            for tts_usage in tts_usages:
+                serialized_data.append({
+                    'id': str(tts_usage._id),
+                    'sentence': tts_usage.sentence,
+                    'mp3_path': tts_usage.mp3_path
+                })
+
+            # Check if there are no TTS usages found for the user
+            if not serialized_data:
+                return JsonResponse({"recordings":{}}, status=200)
+
+            # Return the serialized data
+            return JsonResponse({"recordings":serialized_data}, status=200)
+
+        except User.DoesNotExist:
+            # Handle the case when the user is not found
+            return JsonResponse({"message": "User not found"}, status=404)
+
+        except Exception as e:
+            # Catch any other exceptions and return them as a response
+            return JsonResponse({"message": str(e)}, status=400)
+
+    else:
+        # If the request method is not GET, return a 405 method not allowed error
+        return JsonResponse({"message": "Invalid request method"}, status=405)
+
+@csrf_exempt
+@isAuthenticated
+def delete_recording(request):
+    if request.method == "POST":
+        try:
+            # Try to get the User object
+            data = json.loads(request.body)
+            print(data)
+            user_id = data.get("userId")
+            audio_id = data.get("recordingId")
+            
+            audio = TTSUsage.objects.get(userId= user_id, _id= audio_id)
+            audio.delete()
+            # Return the serialized data
+            return JsonResponse({"message":"audio deleted"}, status=200)
+
+        except Exception as e:
+            # Catch any other exceptions and return them as a response
+            return JsonResponse({"message": str(e)}, status=400)
+
+    else:
+        # If the request method is not GET, return a 405 method not allowed error
+        return JsonResponse({"message": "Invalid request method"}, status=405)
+
+    
+@csrf_exempt
+@isAuthenticated
+@isAdmin
+def get_all_users(request):
+    if request.method != 'GET':
+        return JsonResponse({"message": "Invalid request method, expected GET."}, status=405)
+
+    try:
+        users = User.objects.all()
+        user_list = list(users.values())
+        user_list_filtered = [user for user in user_list if not user.get('admin', False)]
+        
+        return JsonResponse(user_list_filtered, safe=False)
+    
+    except Exception as e:
+        return JsonResponse({"message": f"An error occurred: {str(e)}"}, status=500)
 
 
+@csrf_exempt
+@isAuthenticated
+@isAdmin
+def delete_user(request):
+    if request.method != 'POST':
+        return JsonResponse({"message": "Invalid request method, expected POST."}, status=405)
 
+    try:
+        data = json.loads(request.body)
+        userId = data.get("userId") 
+        print(userId)
+        if not userId:
+            return JsonResponse({"message": "User ID is required"}, status=400)
+        
+        user = get_object_or_404(User, _id=userId)
+
+        # Delete the user
+        user.delete()
+
+        return JsonResponse({"message": "User deleted successfully"}, status=200)
+
+    except json.JSONDecodeError:
+        return JsonResponse({"message": "Invalid JSON format."}, status=400)
+    
+    except Exception as e:
+        return JsonResponse({"message": f"An error occurred: {str(e)}"}, status=500)
+
+@csrf_exempt
+def get_usage(request):
+    if request.method != 'GET':
+        return JsonResponse({"message": "Invalid request method, expected POST."}, status=405)
+    try:
+        recs = TTSUsage.objects.values('created_at')        
+        return JsonResponse({"data": list(recs)}, status=200, safe=False)
+    except Exception as e:
+        print(e)
+        return JsonResponse({"data": f"An error occurred: {str(e)}"}, status=500)
+
+# Obviously a bad idea but I added for testing
+def run_once():
+    try:
+        # Check if user already exists
+        if User.objects.filter(email="admin@g.com").exists():
+            print("admin already exists")
+            return
+        
+        user = User.objects.create(
+            email="admin@g.com",
+            fullName= "Muhammad Vohra",
+            password=make_password("admin123"),  # Hash password
+            sq1="Favourite guy",
+            sa1="me",
+            sq2="best game",
+            sa2="idk", 
+            admin=True
+        )
+        print("admin user registered")
+    except Exception as e:
+        print(e)
+
+run_once()

@@ -23,5 +23,5 @@ lastproject
 
 TTS-AI
 pretrained_models
-data.csv
+server/tts/data.csv
 media

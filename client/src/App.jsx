@@ -14,7 +14,8 @@ import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
 import ProcessText from './pages/ProcessText.jsx';
 import ProcessImage from './components/ProcessImage.jsx';
-
+import AdminDashboard from "./pages/AdminDashboard.jsx";
+import UserDashboard from "./pages/UserDashboard.jsx";
 function App() {
   return (
     <ThemeProvider theme={theme}>
@@ -26,21 +27,25 @@ function App() {
 
           <Route path="/" element={<TempHome />} />
           <Route path="/login" element={<SignInPage />} />
-          <Route path="/signUp" element={<SignUpPage/>}></Route>
-          {/* <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+          <Route path="/signUp" element={<SignUpPage isCreatingUser={false}/>}></Route>
+
+          <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
             <Route path="/dashboard/admin" element={<AdminDashboard />} />
           </Route>
- 
-          <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
-            <Route path="/dashboard/student" element={<UserDashboard />} />
-          </Route> */}
+
+          <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
+            <Route path="/dashboard/user" element={<UserDashboard />} />
+          </Route> 
         
-          <Route path="/textToSpeech" element={<ProcessText />} />
-          <Route path="/imageToSpeech" element={<ProcessImage />} />
+          <Route element={<ProtectedRoute allowedRoles={["user","admin"]} />}>
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/resetPassword" element={<ResetPassword />} />
+              <Route path="/textToSpeech" element={<ProcessText />} />
+              <Route path="/imageToSpeech" element={<ProcessImage />} />
+          </Route> 
           <Route path="/forgotPassword" element={<ForgotPassword />} />
-          <Route path="/resetPassword" element={<ResetPassword />} />
+
           <Route path="/unauth" element={<Unauthorized />}></Route>
-          <Route path="/profile" element={<ProfilePage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

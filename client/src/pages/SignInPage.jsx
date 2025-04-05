@@ -76,7 +76,7 @@ const SignInPage = () => {
 
         const redirectTo =
           location.state?.from?.pathname ||
-          (res.data?.student?.admin ? "/profile" : "/profile");
+          (res.data?.admin ? "/dashboard/admin" : "/dashboard/user");
         navigate(redirectTo, { replace: true });
       }
     } catch (error) {
