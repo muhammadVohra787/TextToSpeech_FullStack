@@ -54,8 +54,10 @@ def generate_audio_from_text(sentence):
         print(f"Found in {existing_row.iloc[0]['Mp3_Path']}")
         print(f"Sentence '{sentence}' already exists. Using existing audio file.")
         return existing_row.iloc[0]['Mp3_Path']
-
+ 
     # Generate mel spectrogram
+    sentence = sentence.replace("_", " ")
+    print(f'*********** Text: ${sentence}')
     mel_output = fastspeech2.encode_text([sentence], pace=1.3, pitch_rate=1.0, energy_rate=1.1)[0]
 
     # Generate waveform
@@ -180,7 +182,7 @@ def process_image(request):
 
                 new_entries.append({"Sentence": sentence, "Mp3_Path": file_path})
 
-            return JsonResponse({"message": "Processing completed", "data": new_entries})
+            return JsonResponse({"message": "Processing completed", "data": new_entries, "word": text})
 
         except json.JSONDecodeError:
             return JsonResponse({"error": "Invalid JSON"}, status=400)
@@ -206,33 +208,62 @@ def list_processed(request):
     else:
         return JsonResponse({'message': 'No processed sentences found'}, status=200)
 
+import re
+
 def split_sentences(text):
-    sentences = [s.strip() for s in re.split(r'[.!?,;]', text) if s.strip()]
+    # Split the text into sentences based on punctuation
+    sentences = [s.strip() for s in re.split(r'(?<=[.!?;])\s+', text) if s.strip()]
     
     result = []
     temp_sentence = None
 
+    # Loop through the sentences
     for i in range(len(sentences)):
         sentence = sentences[i]
 
+        # Merge short sentences with the next one (if they have less than 6 words)
         if len(sentence.split()) < 6:
-            # If it's short, merge it with the next sentence
             if temp_sentence:
-                temp_sentence += " " + sentence
+                temp_sentence += " " + sentence  # Add a space to make it readable
             else:
                 temp_sentence = sentence
         else:
-            # If it's long enough, add temp_sentence (if any) and the current sentence
+            # If a temporary sentence exists, add it to the result
             if temp_sentence:
                 result.append(temp_sentence)
                 temp_sentence = None
             result.append(sentence)
 
-    # Append any remaining temp_sentence
+    # If there's a temp_sentence left at the end (for very short sentences)
     if temp_sentence:
-        result.append(temp_sentence)
+        # If the last result sentence is also short, merge the two
+        if len(result) > 1 and len(result[-1].split()) < 6:
+            result[-1] += " " + temp_sentence  # Add space when merging
+        else:
+            result.append(temp_sentence)
 
-    return result
+    # Further cleanup, handling case where sentences end with unwanted fragments (e.g., dates)
+    merged_result = []
+    for i in range(len(result)):
+        # Check if it's a short fragment that could be a date or file part
+        if i > 0 and len(result[i].split()) < 3 and result[i-1][-1] not in '.!?':  # e.g., "2022"
+            merged_result[-1] += " " + result[i]  # Merge with previous sentence and add space
+        else:
+            merged_result.append(result[i])
+
+    # Clean the sentences for file name compatibility
+    cleaned_result = []
+    for sentence in merged_result:
+        # Remove non-alphanumeric characters (except spaces and underscores)
+        cleaned_sentence = re.sub(r'[^a-zA-Z0-9\s_]', '', sentence)
+        # Replace spaces with underscores for file name compatibility
+        cleaned_sentence = cleaned_sentence.replace(" ", "_")
+        cleaned_result.append(cleaned_sentence)
+
+    return cleaned_result
+
+
+
 
 # updating data.csv file according the media avaialble 
 def run_once():

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Alert, Button, Box, Typography, CircularProgress } from '@mui/material';
+import { Alert, Button, Box, Typography, CircularProgress, Container } from '@mui/material';
 import WavEncoder from 'wav-encoder'; // Import the wav-encoder library
 import useAuthUser from 'react-auth-kit/hooks/useAuthUser';
 
@@ -47,8 +47,8 @@ const ProcessImage = () => {
 
       if (response.data && response.data.data && response.data.data.length > 0) {
         // Extract text from response
-        setExtractedText(response.data.data.map(item => item.Sentence).join('. '));
-
+        setExtractedText(response?.data?.word);
+        console.log(response)
         // Construct proper URLs for audio files
         const audioPaths = response.data.data.map(item => {
           const fileName = item.Mp3_Path.split('/').pop(); // Get only the file name
@@ -129,82 +129,90 @@ const ProcessImage = () => {
   };
 
   return (
-    <Box className="process-image" sx={{ padding: 2 }}>
-      <Typography variant="h4" gutterBottom>
-        Upload an Image for OCR & TTS
-      </Typography>
-
-      {/* Drag and Drop Area */}
-      <Box
-        sx={{
-          border: '2px dashed #1976d2',
-          borderRadius: '8px',
-          padding: '20px',
-          textAlign: 'center',
-          cursor: 'pointer',
-          backgroundColor: '#f5f5f5',
-          '&:hover': {
-            backgroundColor: '#e3f2fd',
-          },
-        }}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
-      >
-        <Typography variant="body1" color="textSecondary">
-          Drag and drop your image here, or click to select.
+    <Container sx={{ padding: 2, display: 'flex', justifyContent: 'center', maxWidth: 'lg', width: '100%' }}>
+      <Box className="process-image" >
+        <Typography variant="h4" gutterBottom>
+          Upload an Image for OCR & TTS
         </Typography>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          style={{ display: 'none' }}
-          id="file-input"
-        />
-        <label htmlFor="file-input">
-          <Button variant="contained" component="span" sx={{ marginTop: 2 }}>
-            Select Image
-          </Button>
-        </label>
-      </Box>
 
-      {/* Submit button */}
-      <Box sx={{ marginTop: 2 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSubmit}
-          disabled={loading || !selectedFile}
-          sx={{ width: '100%' }}
+        {/* Drag and Drop Area */}
+        <Box
+          sx={{
+            border: '2px dashed #1976d2',
+            borderRadius: '8px',
+            padding: '20px',
+            textAlign: 'center',
+            cursor: 'pointer',
+            backgroundColor: '#f5f5f5',
+            '&:hover': {
+              backgroundColor: '#e3f2fd',
+            },
+          }}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
         >
-          {loading ? 'Processing...' : 'Upload & Process'}
-        </Button>
+          <Typography variant="body1" color="textSecondary">
+            Drag and drop your image here, or click to select.
+          </Typography>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            style={{ display: 'none' }}
+            id="file-input"
+          />
+          <label htmlFor="file-input">
+            <Button variant="contained" component="span" sx={{ marginTop: 2 }}>
+              Select Image
+            </Button>
+          </label>
+        </Box>
+
+        {/* Submit button */}
+        <Box sx={{ marginTop: 2 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSubmit}
+            disabled={loading || !selectedFile}
+            sx={{ width: '100%' }}
+          >
+            {loading ? 'Processing...' : 'Upload & Process'}
+          </Button>
+        </Box>
+
+        {/* Loading spinner */}
+        <Box sx={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'column', display: 'flex' }}>{loading && <CircularProgress color='secondary' sx={{ marginTop: 2 }} />}</Box>
+
+
+        {/* Error message */}
+        {error && <Alert severity="error" sx={{ marginTop: 2 }}>{error}</Alert>}
+        {selectedFile && (
+          <Box sx={{ marginTop: 2 }}>
+            <Typography variant="subtitle1">Selected File:</Typography>
+            <Typography variant="body2">{selectedFile.name}</Typography>
+          </Box>
+        )}
+        {/* Extracted Text */}
+        {extractedText && (
+          <Box sx={{ marginTop: 2 }}>
+            <Typography variant="h6">Extracted Text:</Typography>
+            <Typography variant="body1">{extractedText}</Typography>
+          </Box>
+        )}
+
+        {/* Combined Audio Section */}
+        {audioUrl && (
+          <Box sx={{ marginTop: 2 }}>
+            <Typography variant="h6">Combined Audio:</Typography>
+            <audio controls>
+              <source src={audioUrl} type="audio/wav" />
+              Your browser does not support the audio element.
+            </audio>
+          </Box>
+        )}
       </Box>
-
-      {/* Loading spinner */}
-      {loading && <CircularProgress sx={{ marginTop: 2 }} />}
-
-      {/* Error message */}
-      {error && <Alert severity="error" sx={{ marginTop: 2 }}>{error}</Alert>}
-
-      {/* Extracted Text */}
-      {extractedText && (
-        <Box sx={{ marginTop: 2 }}>
-          <Typography variant="h6">Extracted Text:</Typography>
-          <Typography variant="body1">{extractedText}</Typography>
-        </Box>
-      )}
-
-      {/* Combined Audio Section */}
-      {audioUrl && (
-        <Box sx={{ marginTop: 2 }}>
-          <Typography variant="h6">Combined Audio:</Typography>
-          <audio controls>
-            <source src={audioUrl} type="audio/wav" />
-            Your browser does not support the audio element.
-          </audio>
-        </Box>
-      )}
-    </Box>
+    </Container>
   );
 };
 
