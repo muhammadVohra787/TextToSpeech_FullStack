@@ -17,7 +17,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from .TTSUsage import TTSUsage
 from django.contrib.auth.decorators import login_required
-
+import sys
 
 # File path for storing the CSV file
 CSV_FILE_PATH = "./tts/data.csv"
@@ -87,7 +87,7 @@ def process_text(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            text = data.get("text", "").strip()
+            text = data.get("text", "").strip().lower()
             userId = data.get("userId")  # Retrieve email from session
             user = User.objects.get(_id=uuid.UUID(userId))  
 
@@ -150,8 +150,8 @@ def process_image(request):
 
             # Extract text using OCR
             result = reader.readtext(np.array(image))
-            text = " ".join([word[1] for word in result]).strip()
-
+            text = " ".join([word[1] for word in result]).strip().lower()
+            
             if not text:
                 return JsonResponse({'error': 'No readable text found in image'}, status=400)
 
@@ -234,8 +234,36 @@ def split_sentences(text):
 
     return result
 
-@csrf_exempt
-def get_audios_by_userId(request, user_id):  # Add user_id as a parameter
-    # u 
-    print(user_id)
-    return (f"User ID: {user_id}") 
+# updating data.csv file according the media avaialble 
+def run_once():
+    media_folder_path= './tts/media'
+    os.makedirs(media_folder_path, exist_ok=True)
+    if os.path.exists(CSV_FILE_PATH):
+        main_df = pd.read_csv(CSV_FILE_PATH)
+    else:
+        main_df = pd.DataFrame(columns=["Sentence", "Mp3_Path"])
+    try:
+        x = main_df['Mp3_Path'].str.split('/').str[-1].str.lower() 
+        contents = [c.lower() for c in os.listdir(media_folder_path)]
+        
+        indices_to_drop = []
+        
+        for index, filename in x.items():
+            if filename not in contents:
+                indices_to_drop.append(index)
+
+        if indices_to_drop:
+            main_df.drop(indices_to_drop, inplace=True)
+            main_df.to_csv(CSV_FILE_PATH, index=False)
+            
+        else:
+            print("No rows found to delete.")
+            
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno, exc_obj)
+        print(e)
+    return 0
+
+run_once()
