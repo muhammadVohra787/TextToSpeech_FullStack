@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { TextField, Button, Typography, Box, CircularProgress, Card, CardContent } from '@mui/material';
 import WavEncoder from 'wav-encoder'; // Import the wav-encoder library
+import useAuthUser from 'react-auth-kit/hooks/useAuthUser';
 
 const ProcessText = () => {
+  const authUser = useAuthUser();
+  const userId = authUser?.user_id;
   const [text, setText] = useState('');
   const [audioUrl, setAudioUrl] = useState(''); // Store the final combined audio URL
   const [loading, setLoading] = useState(false);
@@ -23,11 +26,14 @@ const ProcessText = () => {
 
     setLoading(true);
     setError(null);
-
+    console.log("here")
     try {
+      console.log({        text: text.trim(),
+        userId: userId})
       // Send the text to generate audio
       const response = await axios.post('http://127.0.0.1:8000/api/tts/process_text/', {
         text: text.trim(),
+        userId: userId
       });
 
       if (response.data?.data?.length > 0) {
@@ -49,6 +55,7 @@ const ProcessText = () => {
 
   const combineAudioFiles = async (audioPaths) => {
     try {
+      console.log("filescame")
       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
       const buffers = [];
 
@@ -87,9 +94,6 @@ const ProcessText = () => {
       // Set the audio URL for playback
       setAudioUrl(audioUrl);
 
-      // Optionally, play the audio immediately after it's ready
-      const audioElement = new Audio(audioUrl);
-      // audioElement.play();
     } catch (err) {
       console.error('Error combining audio files:', err);
       setError('Error combining audio files.');
@@ -153,7 +157,7 @@ const ProcessText = () => {
         <Box sx={{ width: '100%', maxWidth: 500 }}>
           <Typography variant="h6">Generated Combined Audio:</Typography>
           <Box sx={{ marginTop: 1, width: '100%' }}>
-            <audio controls style={{ width: '100%' }}>
+            <audio key={audioUrl} controls style={{ width: '100%' }}>
               <source src={audioUrl} type="audio/wav" />
               Your browser does not support the audio element.
             </audio>

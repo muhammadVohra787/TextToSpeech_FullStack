@@ -8,12 +8,13 @@ const Navbar = () => {
   const isAuthenticated = useIsAuthenticated();
   const signOut = useSignOut();
   const navigate = useNavigate();
-    const authUser = useAuthUser()
+  const authUser = useAuthUser()
   const handleLogout = () => {
     signOut();
     navigate("/login");
   };
-
+  const nav_url = authUser?.admin  ? "admin" : "user"
+  console.log(`/dashboard/${nav_url}`)
   return (
     <AppBar position="static" sx={{ bgcolor: "black" }}>
       <Toolbar>
@@ -26,21 +27,31 @@ const Navbar = () => {
         <Box>
           {isAuthenticated ? (
             <>
-                <Button color="inherit" component={Link} to={`/dashboard/${authUser?.role}`}>
-
+              <Button color="inherit" component={Link} to={`/dashboard/${nav_url}`}>
                 Dashboard
               </Button>
               <Button color="inherit" component={Link} to="/profile">
                 Profile
               </Button>
+              <Button color="inherit" component={Link} to="/textToSpeech">
+                Text To Speech
+              </Button>
+              <Button color="inherit" component={Link} to="/imageToSpeech">
+                Image To Speech
+              </Button>
+
               <Button color="inherit" onClick={handleLogout}>
                 Logout
               </Button>
             </>
           ) : (
-            <Button color="inherit" component={Link} to="/login">
-              Sign In
-            </Button>
+            <>
+              <Button color="inherit" component={Link} to="/forgotPassword">
+                Forgot Password
+              </Button>
+              <Button color="inherit" component={Link} to="/login">
+                Sign In
+              </Button></>
           )}
         </Box>
       </Toolbar>

@@ -14,80 +14,10 @@ const TempHome = () => {
             variant="contained"
             color="primary"
             component={Link}
-            to="/textToSpeech"
-            sx={{ marginBottom: 2 }}
-          >
-            Go to Text-to-Speech
-          </Button>
-
-          <Button
-            variant="contained"
-            color="primary"
-            component={Link}
-            to="/imageToSpeech"
-            sx={{ marginBottom: 2 }}
-          >
-            Go to Image-to-Speech
-          </Button>
-
-          <Button
-            variant="contained"
-            color="primary"
-            component={Link}
-            to="/forgotPassword"
-            sx={{ marginBottom: 2 }}
-          >
-            Forgot Password
-          </Button>
-
-          <Button
-            variant="contained"
-            color="primary"
-            component={Link}
-            to="/resetPassword"
-            sx={{ marginBottom: 2 }}
-          >
-            Reset Password
-          </Button>
-
-          <Button
-            variant="contained"
-            color="primary"
-            component={Link}
-            to="/profile"
-            sx={{ marginBottom: 2 }}
-          >
-            Profile
-          </Button>
-
-          <Button
-            variant="contained"
-            color="primary"
-            component={Link}
-            to="/unauth"
-            sx={{ marginBottom: 2 }}
-          >
-            Unauthorized Page
-          </Button>
-
-          <Button
-            variant="contained"
-            color="primary"
-            component={Link}
             to="/login"
             sx={{ marginBottom: 2 }}
           >
-            Go to Sign In
-          </Button>
-
-          <Button
-            variant="contained"
-            color="primary"
-            component={Link}
-            to="*"
-            sx={{ marginBottom: 2 }}
-          >
-            Go to Not Found
+            Login First
           </Button>
         </Box>
       </Box>

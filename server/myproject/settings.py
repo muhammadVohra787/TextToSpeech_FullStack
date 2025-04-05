@@ -140,3 +140,6 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000"
 ]
 
+# settings.py
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # default
+SESSION_COOKIE_AGE = 3600  # session will expire after 1 hour of inactivity

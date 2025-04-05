@@ -1,5 +1,5 @@
 from django.urls import path
-from .tts_controller import process_text, process_image, list_processed
+from .tts_controller import process_text, process_image, list_processed 
 from django.conf.urls.static import static
 from django.conf import settings
 
