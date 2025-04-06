@@ -113,12 +113,11 @@ def process_image(request):
 
             sentences = split_sentences(text)
             new_entries = []
-
+            print(sentences)
             for sentence in sentences:
-                file_path = generate_audio_from_text(sentence)
-                
+                file_path = generate_audio_from_text(sentence)               
+                TTSUsage.objects.create(userId=user, sentence=text, mp3_path=file_path, reference_id=sentence_id)
                 new_entries.append({"Sentence": sentence, "Mp3_Path": file_path})
-            TTSUsage.objects.create(userId=user, sentence=text, mp3_path=None, reference_id=sentence_id)
             return JsonResponse({"message": "Processing completed", "data": new_entries, "word": text})
         except Exception as e:
             print("Error:", e)
