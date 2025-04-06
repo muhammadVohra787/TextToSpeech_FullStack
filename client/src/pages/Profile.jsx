@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Button, TextField, Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, CircularProgress } from '@mui/material';
+import { Button, TextField, Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, CircularProgress } from '@mui/material';
 import useIsAuthenticated from "react-auth-kit/hooks/useIsAuthenticated";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { usePostAuthenticated } from '../api/tanstack-get-post';
-
+import WavEncoder from 'wav-encoder'; // Import the wav-encoder library
+import axios from 'axios';
 const ProfilePage = () => {
   const authUser = useAuthUser();
   const userId = authUser?.user_id;
@@ -13,8 +14,7 @@ const ProfilePage = () => {
   const { isPending: updatingUserData, mutateAsync: updateUser } = usePostAuthenticated();
   const { isPending: gettingUserRecordings, mutateAsync: getUserRecordings } = usePostAuthenticated();
   const { isPending: deletingRecordings, mutateAsync: deleteRecording } = usePostAuthenticated();
-  const [userRecordings, setRecordings] = useState([]);
-  const [sentences, setSentences] = useState([]);
+  const [userRecordings, setUserRecordings] = useState([]);
 
   // Fetch user data and recordings
   useEffect(() => {
@@ -27,14 +27,24 @@ const ProfilePage = () => {
         });
 
         const recordings = await getUserRecordings({ postData: { userId }, url: "users/get_user_recordings" });
-        const audioPaths = recordings?.data?.recordings?.map(item => ({
-          mp3Path: `http://127.0.0.1:8000/${item.mp3_path}`,
-          sentence: item.sentence,
-          id: item.id // Assuming _id is present
+
+        const audioPaths = recordings.data.recordings;
+
+        const recordingsArray = Object.entries(audioPaths).map(([referenceId, data]) => ({
+          id: referenceId,
+          sentence: data.sentence,
+          paths: data.paths, 
         }));
-        console.log(recordings)
-        setRecordings(audioPaths);
-        setSentences(recordings?.data?.recordings?.map(item => item.sentence));
+
+        setUserRecordings(recordingsArray);
+
+        // Automatically combine audio after fetching recordings
+        const audioPathsWithSentences = recordingsArray.map(recording => ({
+          sentence: recording.sentence,
+          paths: recording.paths
+        }));
+        combineAudioFiles(audioPathsWithSentences);
+
       } catch (error) {
         console.error("Error fetching user:", error.message);
       }
@@ -42,6 +52,80 @@ const ProfilePage = () => {
 
     fetchData();
   }, [getUser, userId]);
+
+  const combineAudioFiles = async (audioPathsWithSentences) => {
+    try {
+      console.log("Starting to combine audio files...");
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+      // Iterate over each sentence and its associated audio paths
+      for (let i = 0; i < audioPathsWithSentences.length; i++) {
+        const { sentence, paths } = audioPathsWithSentences[i];
+        const buffers = [];
+
+        // Loop through each audio path and fetch the audio data
+        for (let j = 0; j < paths.length; j++) {
+          const response = await axios.get(`http://127.0.0.1:8000/${paths[j]}`, {
+            responseType: 'arraybuffer', // Set response type to arraybuffer
+          });
+
+          if (response.status !== 200) {
+            throw new Error(`Failed to fetch audio file: ${paths[j]}`);
+          }
+
+          const audioBuffer = await audioContext.decodeAudioData(response.data);
+          buffers.push(audioBuffer);
+        }
+
+        if (buffers.length === 0) {
+          throw new Error(`No valid audio buffers to combine for sentence: ${sentence}`);
+        }
+
+        // Calculate the total length of the combined audio
+        const totalLength = buffers.reduce((acc, buffer) => acc + buffer.length, 0);
+        const combinedBuffer = audioContext.createBuffer(2, totalLength, audioContext.sampleRate);
+
+        let offset = 0;
+        buffers.forEach(buffer => {
+          for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
+            combinedBuffer.getChannelData(channel).set(buffer.getChannelData(channel), offset);
+          }
+          offset += buffer.length;
+        });
+
+        // Encode the combined audio buffer into WAV format
+        const wavData = await WavEncoder.encode({
+          sampleRate: audioContext.sampleRate,
+          channelData: [combinedBuffer.getChannelData(0), combinedBuffer.getChannelData(1)],
+        });
+
+        // Create a Blob from the WAV data
+        const audioBlob = new Blob([wavData], { type: 'audio/wav' });
+
+        // Create a URL for the audio Blob
+        const audioUrl = URL.createObjectURL(audioBlob);
+
+        // Update the sentence with the combined audio URL
+        setUserRecordings(prevRecordings => {
+          const updatedRecordings = prevRecordings.map(recording => {
+            if (recording.sentence === sentence) {
+              return { ...recording, mp3Path: audioUrl }; // Save combined audio URL
+            }
+            return recording;
+          });
+          return updatedRecordings;
+        });
+      }
+
+      console.log('All audio files combined successfully.');
+    } catch (err) {
+      console.error('Error combining audio files:', err);
+    }
+  };
+
+
+
+
 
   // Handle Update/Edit
   const handleUpdate = () => {
@@ -68,21 +152,30 @@ const ProfilePage = () => {
   // Handle Delete
   const handleDelete = async (id) => {
     try {
-      console.log(id)
-      // Call your delete API here with the id
-      await deleteRecording({ postData: { userId, recordingId: id }, url: "users/delete_recording" });
-
+      console.log(id);
+      const res = await deleteRecording({ postData: { userId, recordingId: id }, url: "users/delete_recording" });
+      setUserRecordings(prevRecordings => prevRecordings.filter(recording => recording.id !== id));
       // Remove the deleted recording from the state
-      setRecordings(prevRecordings => prevRecordings.filter(recording => recording.id !== id));
+
     } catch (error) {
       console.error("Error deleting recording:", error.message);
     }
   };
 
+  // Handle combining of audio when button is clicked
+  const handleCombine = () => {
+    const allAudioPaths = [];
+    Object.values(userRecordings).forEach((data) => {
+      allAudioPaths.push(...data.paths); // Collect all paths to combine
+    });
+
+    combineAudioFiles(allAudioPaths);
+  };
+
   return (
     <Box sx={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'column', display: 'flex' }}>
       {!userId && <h1>Not logged in</h1>}
-      {!gettingUserData && !updatingUserData && !gettingUserRecordings && !deletingRecordings? (
+      {!gettingUserData && !updatingUserData && !gettingUserRecordings && !deletingRecordings ? (
         <>
           <Paper sx={{ textAlign: 'center', maxWidth: 600, width: '100%', padding: 3, boxShadow: 2, borderRadius: 2 }}>
             <Typography variant="h4" sx={{ marginBottom: 3 }}>
@@ -142,14 +235,18 @@ const ProfilePage = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {userRecordings.map((recording) => (
+                  {userRecordings?.map((recording) => (
                     <TableRow key={recording.id}>
                       <TableCell>{recording.sentence}</TableCell>
                       <TableCell>
-                        <audio controls>
-                          <source src={recording.mp3Path} type="audio/mp3" />
-                          Your browser does not support the audio element.
-                        </audio>
+                        {recording.mp3Path ? (
+                          <audio controls>
+                            <source src={recording.mp3Path} type="audio/wav" />
+                            Your browser does not support the audio element.
+                          </audio>
+                        ) : (
+                          <Typography variant="body2">Audio not ready</Typography>
+                        )}
                       </TableCell>
                       <TableCell align="center">
                         <Button variant="contained" color="secondary" onClick={() => handleDelete(recording.id)}>
@@ -159,6 +256,7 @@ const ProfilePage = () => {
                     </TableRow>
                   ))}
                 </TableBody>
+
               </Table>
             </TableContainer>
           </Paper>
