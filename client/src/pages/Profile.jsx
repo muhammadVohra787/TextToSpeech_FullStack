@@ -5,6 +5,9 @@ import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { usePostAuthenticated } from '../api/tanstack-get-post';
 import WavEncoder from 'wav-encoder'; // Import the wav-encoder library
 import axios from 'axios';
+import {useNavigate} from "react-router-dom"
+
+
 const ProfilePage = () => {
   const authUser = useAuthUser();
   const userId = authUser?.user_id;
@@ -15,7 +18,7 @@ const ProfilePage = () => {
   const { isPending: gettingUserRecordings, mutateAsync: getUserRecordings } = usePostAuthenticated();
   const { isPending: deletingRecordings, mutateAsync: deleteRecording } = usePostAuthenticated();
   const [userRecordings, setUserRecordings] = useState([]);
-
+  const navigate = useNavigate()
   // Fetch user data and recordings
   useEffect(() => {
     const fetchData = async () => {

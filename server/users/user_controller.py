@@ -13,6 +13,9 @@ from django.shortcuts import get_object_or_404
 from .user_middlewares import isAuthenticated, isAdmin
 from collections import defaultdict
 from pydub import AudioSegment
+from django.db.models import Max
+
+
 SECRET_KEY = "your_secret_key"  # Change this to a strong key
 CSV_FILE_PATH = "../tts/data.csv"
 MEDIA_FOLDER = '../tts/media'
@@ -333,7 +336,10 @@ def get_usage(request):
     if request.method != 'GET':
         return JsonResponse({"message": "Invalid request method, expected POST."}, status=405)
     try:
-        recs = TTSUsage.objects.values('created_at')        
+        recs = TTSUsage.objects.values('reference_id') \
+        .annotate(latest_created_at=Max('created_at')) \
+        .order_by('latest_created_at')  
+        print(recs)
         return JsonResponse({"data": list(recs)}, status=200, safe=False)
     except Exception as e:
         print(e)
