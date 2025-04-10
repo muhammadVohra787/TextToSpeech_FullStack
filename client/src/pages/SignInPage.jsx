@@ -87,7 +87,7 @@ const SignInPage = () => {
   return (
     <Container maxWidth="sm">
       <Paper elevation={3} sx={{ p: 4, mt: 8, textAlign: "center" }}>
-        <Typography variant="h5" gutterBottom>
+        <Typography variant="h5" gutterBottom data-testid="signInTitle">
           Sign In
         </Typography>
         <Stack spacing={2}>
