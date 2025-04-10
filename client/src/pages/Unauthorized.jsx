@@ -26,7 +26,7 @@ const Unauthorized = () => {
         backgroundColor:'black'
       }}
     >
-      <Typography variant="h3" fontWeight="bold" color="error" mb={2}>
+      <Typography variant="h3" fontWeight="bold" color="error" mb={2}  data-testid="unauthTitle">
         Unauthorized Access
       </Typography>
       <Typography variant="h6" mb={3}>
