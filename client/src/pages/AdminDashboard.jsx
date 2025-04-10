@@ -1,8 +1,5 @@
-import axios from "axios";
-import { usePostAuthenticated } from "../api/tanstack-get-post";
+import axios from "axios"; 
 import { useEffect, useState } from "react";
-import useAuthHeader from 'react-auth-kit/hooks/useAuthHeader';
-import SignUp from "./SignUpPage";
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -17,15 +14,12 @@ import {
 } from 'chart.js';
 
 import { format } from 'date-fns';
-// ✅ MUI Imports
-import { Container, Typography, Card, CardContent, Button, Box, Divider, CircularProgress } from "@mui/material";
+import { Container, Typography, Box, CircularProgress } from "@mui/material";
 
 const AdminDashboard = () => {
-    const authHeader = useAuthHeader();
-    const { isPending: deletingUser, mutateAsync: deleteUser } = usePostAuthenticated();
-    const [users, setUsers] = useState([]);
-    const [userAdded, setUserAdded]= useState(false)
-    const [metrics , setMetrics] = useState({})
+    const [metrics, setMetrics] = useState([]);
+    const [loading, setLoading] = useState(false);
+
     ChartJS.register(
         LineElement,
         PointElement,
@@ -38,130 +32,91 @@ const AdminDashboard = () => {
     );
 
     const data = {
-        labels: metrics.length > 0 ? metrics : null,
+        labels: metrics.map(item => item.date),  // Use the grouped date labels
         datasets: [
-        {
-            label: 'Model Usage',
-            data: Array.from({ length: metrics.length }, (_, i) => i + 1),
-            fill: true, // This makes the area under the line be filled
-            borderColor: '#36A2EB', // Line color
-            backgroundColor: 'rgb(19, 27, 49)', // Fill color with transparency (adjust alpha as needed)
-            tension: 0.3, // Smoothing of the line
-        },
+            {
+                label: 'Model Usage',
+                data: metrics.map(item => item.count), // The count of calls per date
+                fill: true,
+                borderColor: '#36A2EB',
+                backgroundColor: 'rgb(19, 27, 49)',
+                tension: 0.3,
+            },
         ],
     };
-    
+
     const options = {
         responsive: true,
         plugins: {
-        legend: { position: 'top' },
+            legend: { position: 'top' },
         },
         scales: {
-        x: {
-            title: {
-            display: true,
-            text: 'Date',
+            x: {
+                title: {
+                    display: true,
+                    text: 'Date',
+                },
             },
-        },
-        y: {
-            title: {
-            display: true,
-            text: 'Visits',
+            y: {
+                title: {
+                    display: true,
+                    text: 'Visits',
+                },
             },
-        },
         },
     };
 
     useEffect(() => {
-        const fetchUsers = async () => {
+        const fetchMetrics = async () => {
+            setLoading(true);
             try {
-                const response = await axios.get('http://127.0.0.1:8000/api/users/get_all_users', {
+                const response = await axios.get("http://127.0.0.1:8000/api/users/get_usage", {
                     headers: {
-                        Authorization: authHeader,
+                        Authorization: "Bearer <Your_Token_Here>",
                     },
                 });
-                setUsers(response.data);
-            } catch (error) {
-                console.error("Error fetching users:", error);
+                console.log(response)
+                const groupedData = groupByDate(response.data.data);
+                setMetrics(groupedData);
+            } catch (err) {
+                console.error("Error fetching metrics:", err);
+            } finally {
+                setLoading(false);
             }
         };
-        const fetchMetrics= async()=>{
-            try{
-                const response = await axios.get("http://127.0.0.1:8000/api/users/get_usage",{
-                    headers: {
-                        Authorization: authHeader,
-                    },
-                })
-                console.log(response)
-                let x = response?.data?.data.map(item => {
-                    const date = new Date(item.created_at);  // Convert string to Date object
-                    return format(date, 'MMM dd, yyyy hh:mm a');
-                  });
-                  
-                  setMetrics(x);
-                console.log(typeof(x))
-            } catch(err){
-                console.log(err)
-            }
-        }
-        fetchUsers();
-        fetchMetrics();
-    }, [userAdded]);
 
-    const handleDelete = async (userId) => {
-        try {
-            const res = await deleteUser({ postData: { userId }, url: "users/delete_user" });
-            setUsers(users.filter(user => user._id !== userId));
-            console.log(res);
-        } catch (error) {
-            console.error("Error deleting user:", error);
-        }
+        fetchMetrics();
+    }, []);
+
+    // Function to group data by date and count occurrences
+    const groupByDate = (data) => {
+        const grouped = {};
+    
+        data.forEach(item => {
+            const date = item.latest_created_at; // Already formatted as YYYY-MM-DD from backend
+            if (!grouped[date]) {
+                grouped[date] = 0;
+            }
+            grouped[date]++;
+        });
+    
+        return Object.entries(grouped).map(([date, count]) => ({
+            date: format(new Date(date), 'MMM dd, yyyy'), // Optional: pretty format
+            count,
+        }));
     };
+    
 
     return (
         <Container maxWidth="md" sx={{ mt: 5 }}>
             <Typography variant="h4" align="center" gutterBottom>
                 Admin Dashboard
             </Typography>
-            <Line data={data} options={options} />
-            {/* <Doughnut data={metrics}/> */}
-            <Box sx={{ my: 4 }}>
-                {users && users.length > 0 ? (
-                    users.map((user) => (
-                        <Card key={user._id} variant="outlined" sx={{ mb: 2 }}>
-                            <CardContent
-                                sx={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center",
-                                }}
-                            >
-                                <Box>
-                                    <Typography variant="subtitle1">{user.fullName}</Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        {user.email}
-                                    </Typography>
-                                </Box>
-                                <Button
-                                    variant="contained"
-                                    color="error"
-                                    onClick={() => handleDelete(user._id)}
-                                    disabled={deletingUser}
-                                >
-                                    {deletingUser ? <CircularProgress size={20} color="inherit" /> : "Delete"}
-                                </Button>
-                            </CardContent>
-                        </Card>
-                    ))
-                ) : (
-                    <Typography variant="body1" color="text.secondary" align="center">
-                        No users found.
-                    </Typography>
-                )}
-            </Box>
-
-            <Divider sx={{ my: 4 }} />
-            <SignUp isCreatingUser={true} setUserAdded={setUserAdded}/>
+            {loading ? (
+                <CircularProgress />
+            ) : (
+                <Line data={data} options={options} />
+            )}
         </Container>
     );
 };

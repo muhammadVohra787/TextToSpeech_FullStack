@@ -9,7 +9,9 @@ class TTSUsage(models.Model):
     userId = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tts_usages')
     sentence = models.CharField(max_length=10000)
     mp3_path = models.CharField(max_length=50000)
-    created_at = models.DateTimeField(default=timezone.now, editable=False)
+    
+    # Save only the date, not time
+    created_at = models.DateField(default=timezone.now, editable=False)
 
     def __str__(self):
         return (f"TTSUsage(User: {self.userId.fullName}, Sentence: {self.sentence[:50]}..., "
