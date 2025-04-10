@@ -21,7 +21,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <Navbar />
+        <Navbar/>
         <br></br>
         <Routes>
 
