@@ -1,93 +1,106 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Button, Typography, Box } from '@mui/material';
+import { Container, Button, Typography, Box, Card, CardContent } from '@mui/material';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
+
 const UserDashboard = () => {
   return (
-    <Container>
-      <Box sx={{ marginTop: 5 }}>
-        <Typography variant="h4" align="center" gutterBottom>
-          Welcome to the Home Page
+    <Container sx={{ minHeight: '100vh' }}>
+      <Box
+        sx={{
+          marginTop: 5,
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center', // Centers vertically
+          alignItems: 'center',      // Centers horizontally
+          minHeight: '80vh',         // Take up most of the viewport height
+        }}
+      >
+        <Typography variant="h3" gutterBottom>
+          Welcome to the Future of Speech! 🎤
         </Typography>
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <Button
-            variant="contained"
-            color="primary"
-            component={Link}
-            to="/textToSpeech"
-            sx={{ marginBottom: 2 }}
-          >
-            Go to Text-to-Speech
-          </Button>
+        <Typography variant="h6" paragraph sx={{ color: '#666' }}>
+          Transform text and images into speech with ease. Select an option below to get started!
+        </Typography>
 
-          <Button
-            variant="contained"
-            color="primary"
-            component={Link}
-            to="/imageToSpeech"
-            sx={{ marginBottom: 2 }}
-          >
-            Go to Image-to-Speech
-          </Button>
+        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, flexWrap: 'wrap' }}>
+          <Link to="/textToSpeech" style={{ textDecoration: 'none' }}>
+            <Card
+              sx={{
+                minWidth: 450,
+                minHeight: 250,
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                transition: 'transform 0.3s ease',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+                borderRadius: '15px',
+                '&:hover': { transform: 'scale(1.05)', boxShadow: '0 6px 30px rgba(0, 0, 0, 0.3)' },
+                backgroundColor: '#1e1e1e',
+              }}
+            >
+              <CardContent>
+                <Typography variant="h5" align="center" sx={{ marginBottom: 2, color: '#fff' }}>
+                  Text-to-Speech
+                </Typography>
+                <VolumeUpIcon sx={{ fontSize: 60, color: '#fff', marginBottom: 2 }} />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  sx={{
+                    width: '100%',
+                    padding: '12px 0',
+                    fontSize: '16px',
+                    textTransform: 'none',
+                    visibility: 'hidden',
+                  }}
+                >
+                  Go
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
 
-          <Button
-            variant="contained"
-            color="primary"
-            component={Link}
-            to="/forgotPassword"
-            sx={{ marginBottom: 2 }}
-          >
-            Forgot Password
-          </Button>
-
-          <Button
-            variant="contained"
-            color="primary"
-            component={Link}
-            to="/resetPassword"
-            sx={{ marginBottom: 2 }}
-          >
-            Reset Password
-          </Button>
-
-          <Button
-            variant="contained"
-            color="primary"
-            component={Link}
-            to="/profile"
-            sx={{ marginBottom: 2 }}
-          >
-            Profile
-          </Button>
-
-          <Button
-            variant="contained"
-            color="primary"
-            component={Link}
-            to="/unauth"
-            sx={{ marginBottom: 2 }}
-          >
-            Unauthorized Page
-          </Button>
-
-          <Button
-            variant="contained"
-            color="primary"
-            component={Link}
-            to="/login"
-            sx={{ marginBottom: 2 }}
-          >
-            Go to Sign In
-          </Button>
-
-          <Button
-            variant="contained"
-            color="primary"
-            component={Link}
-            to="*"
-            sx={{ marginBottom: 2 }}
-          >
-            Go to Not Found
-          </Button>
+          <Link to="/imageToSpeech" style={{ textDecoration: 'none' }}>
+            <Card
+              sx={{
+                minWidth: 450,
+                minHeight: 250,
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                transition: 'transform 0.3s ease',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+                borderRadius: '15px',
+                '&:hover': { transform: 'scale(1.05)', boxShadow: '0 6px 30px rgba(0, 0, 0, 0.3)' },
+                backgroundColor: '#1e1e1e',
+              }}
+            >
+              <CardContent>
+                <Typography variant="h5" align="center" sx={{ marginBottom: 2, color: '#fff' }}>
+                  Image-to-Speech
+                </Typography>
+                <CameraAltIcon sx={{ fontSize: 60, color: '#fff', marginBottom: 2 }} />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  sx={{
+                    width: '100%',
+                    padding: '12px 0',
+                    fontSize: '16px',
+                    textTransform: 'none',
+                    visibility: 'hidden',
+                  }}
+                >
+                  Go
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
         </Box>
       </Box>
     </Container>

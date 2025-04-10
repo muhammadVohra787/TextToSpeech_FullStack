@@ -15,4 +15,4 @@ urlpatterns = [
     path("get_all_users", get_all_users, name="get_all_users"),
     path("delete_user", delete_user, name="delete_user"),
     path("get_usage", get_usage, name="get_usage"),    
-]
+] 

@@ -11,9 +11,11 @@ from django.conf import settings
 import uuid
 from django.shortcuts import get_object_or_404
 from .user_middlewares import isAuthenticated, isAdmin
-
+from collections import defaultdict
+from pydub import AudioSegment
 SECRET_KEY = "your_secret_key"  # Change this to a strong key
-
+CSV_FILE_PATH = "../tts/data.csv"
+MEDIA_FOLDER = '../tts/media'
 @csrf_exempt
 def create_user(request):
     if request.method == "POST":
@@ -214,7 +216,6 @@ def get_users(request):
     return JsonResponse(users, safe=False, encoder=MongoJSONEncoder)
 
 @csrf_exempt
-@isAuthenticated
 def get_user_recordings(request):
     if request.method == "POST":
         try:
@@ -225,24 +226,18 @@ def get_user_recordings(request):
             # Try to get the User object
             user = User.objects.get(_id=user_id)
 
-            # Get all related TTSUsage objects for this user
-            tts_usages = user.tts_usages.all()
+            grouped_usages = defaultdict(lambda: {"sentence": None, "paths": []})
 
-            # Manually serialize the queryset into a list of dictionaries
-            serialized_data = []
-            for tts_usage in tts_usages:
-                serialized_data.append({
-                    'id': str(tts_usage._id),
-                    'sentence': tts_usage.sentence,
-                    'mp3_path': tts_usage.mp3_path
-                })
-
-            # Check if there are no TTS usages found for the user
-            if not serialized_data:
-                return JsonResponse({"recordings":{}}, status=200)
+            for tts_usage in user.tts_usages.all():
+                ref_id = str(tts_usage.reference_id)
+                grouped_usages[ref_id]["paths"].append(tts_usage.mp3_path)
+                
+                # Set sentence once (if not already set)
+                if grouped_usages[ref_id]["sentence"] is None:
+                    grouped_usages[ref_id]["sentence"] = tts_usage.sentence
 
             # Return the serialized data
-            return JsonResponse({"recordings":serialized_data}, status=200)
+            return JsonResponse({"recordings":grouped_usages}, status=200)
 
         except User.DoesNotExist:
             # Handle the case when the user is not found
@@ -261,24 +256,31 @@ def get_user_recordings(request):
 def delete_recording(request):
     if request.method == "POST":
         try:
-            # Try to get the User object
+            # Parse the incoming data (Expecting a single recordingId)
             data = json.loads(request.body)
             print(data)
             user_id = data.get("userId")
-            audio_id = data.get("recordingId")
+            recording_id = data.get("recordingId")  # Expecting a single recordingId
             
-            audio = TTSUsage.objects.get(userId= user_id, _id= audio_id)
-            audio.delete()
-            # Return the serialized data
-            return JsonResponse({"message":"audio deleted"}, status=200)
+            if not recording_id:
+                return JsonResponse({"message": "No recording ID provided"}, status=400)
+
+            # Try to find the audio record and delete it
+            try:
+                TTSUsage.objects.filter(userId=user_id, reference_id=recording_id).delete()
+
+                return JsonResponse({"message": "Audio deleted successfully."}, status=200)
+            except TTSUsage.DoesNotExist:
+                return JsonResponse({"message": "Recording not found."}, status=404)
 
         except Exception as e:
             # Catch any other exceptions and return them as a response
             return JsonResponse({"message": str(e)}, status=400)
 
     else:
-        # If the request method is not GET, return a 405 method not allowed error
+        # If the request method is not POST, return a 405 method not allowed error
         return JsonResponse({"message": "Invalid request method"}, status=405)
+
 
     
 @csrf_exempt
