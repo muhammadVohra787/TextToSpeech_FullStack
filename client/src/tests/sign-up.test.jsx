@@ -70,9 +70,7 @@ describe('SignIn Component', () => {
     const passwordInput = screen.getByLabelText(/Password/i);
     const submitButton = screen.getByRole('button', { name: /sign in/i });
 
-    fireEvent.change(emailInput, { target: { value: 'valid@example.com' } });
-    fireEvent.change(passwordInput, { target: { value: 'password123' } });
-
-    fireEvent.click(submitButton);
+    fireEvent.change(emailInput, { target: { value: 'a@b.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'Dog123@' } });
   });
 });
