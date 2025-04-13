@@ -21,7 +21,7 @@ import sys
 from dotenv import load_dotenv
 load_dotenv()
 
-api_key = os.getenv('GEMINI_API_KEY')
+api_key = "AIzaSyA6hE93rXZBeVAaM_yb7kBAjEHdNAQgu8M"
 client = genai.Client(api_key=api_key)
 CSV_FILE_PATH = "./tts/data.csv"
 MEDIA_FOLDER = './tts/media'
