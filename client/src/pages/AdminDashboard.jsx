@@ -102,7 +102,7 @@ const AdminDashboard = () => {
         fetchUsers();
         fetchMetrics();
 
-    }, []);
+    }, [userAdded]);
 
     // Function to group data by date and count occurrences
     const groupByDate = (data) => {
@@ -175,7 +175,7 @@ const AdminDashboard = () => {
                     </Typography>
                 )} </Box>
             <Divider sx={{ my: 4 }} />
-            <SignUp isCreatingUser={true} />
+            <SignUp isCreatingUser={true} setUserAdded={setUserAdded} />
         </Container>
     );
 };
