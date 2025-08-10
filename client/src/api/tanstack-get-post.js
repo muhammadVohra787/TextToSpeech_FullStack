@@ -1,13 +1,9 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-
 import useAuthHeader from 'react-auth-kit/hooks/useAuthHeader';
 
-const API_URL ="http://localhost:8000/api"
-
+const API_URL = `${import.meta.env.VITE_API_URL}/api` || "http://localhost:8000/api"
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
 
 export const usePost = () => {
   const authHeader = useAuthHeader()
