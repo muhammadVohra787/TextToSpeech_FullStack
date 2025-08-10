@@ -9,7 +9,7 @@ python-dotenv==1.1.0
 pymongo==3.11.4
 
 # Text Processing
-easyocr==1.7.2
+pytesseract==0.3.13
 numpy==2.2.3
 pandas==2.2.3
 
@@ -33,3 +33,5 @@ requests==2.32.3
 dnspython==2.7.0
 gunicorn==20.1.0
 whitenoise==6.9.0
+
+pytesseract==0.3.13

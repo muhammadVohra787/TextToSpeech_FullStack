@@ -9,7 +9,6 @@ from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import AllowAny
 from PIL import Image
-import easyocr
 import uuid
 import io
 import sys
@@ -20,6 +19,8 @@ from google import genai
 import sys
 from dotenv import load_dotenv
 from django.conf import settings
+
+import pytesseract
 
 load_dotenv()
 
@@ -34,16 +35,6 @@ if os.path.exists(CSV_FILE_PATH):
     main_df = pd.read_csv(CSV_FILE_PATH)
 else:
     main_df = pd.DataFrame(columns=["Sentence", "Mp3_Path"])
-
-reader = None
-
-def get_reader():
-    global reader
-    if reader is None:
-        print("Loading EasyOCR model now...")
-        reader = easyocr.Reader(['en'])
-        print("EasyOCR model loaded!")
-    return reader
     
 print("########## MODELS LOADED ############")
 
@@ -109,7 +100,6 @@ def process_text(request):
 def process_image(request):
     if request.method == 'POST' and request.FILES.get('image'):
         try:
-            reader = get_reader()
             sentence_id = uuid.uuid4()
             userId = request.POST.get("userId")
             if not userId:
@@ -117,25 +107,31 @@ def process_image(request):
 
             user = User.objects.get(_id=uuid.UUID(userId))
             image_file = request.FILES['image']
-            image = Image.open(io.BytesIO(image_file.read())).convert('L')
+            image = Image.open(io.BytesIO(image_file.read()))
 
-            result = reader.readtext(np.array(image))
-            response = client.models.generate_content(
-                model="gemini-2.0-flash",
-                contents=f"Clean up this OCR text: {result}. Remove extra punctuation (not all), correct spelling errors, remove invalid characters, return cleaned text only."
-            )
-            text = response.text.strip().replace("\n", " ")
+            # Use pytesseract to extract text from image
+            text = pytesseract.image_to_string(image)
+            text = text.strip()
             if not text:
                 return JsonResponse({'error': 'No readable text found in image'}, status=400)
 
-            sentences = split_sentences(text)
+            # Optionally, clean text with your AI client as before
+            response = client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=f"Clean up this OCR text: {text}. Remove extra punctuation (not all), correct spelling errors, remove invalid characters, return cleaned text only."
+            )
+            cleaned_text = response.text.strip().replace("\n", " ")
+            if not cleaned_text:
+                cleaned_text = text  # fallback if AI returns empty
+
+            sentences = split_sentences(cleaned_text)
             new_entries = []
-            print(sentences)
             for sentence in sentences:
-                file_path, relative_path = generate_audio_from_text(sentence)               
-                TTSUsage.objects.create(userId=user, sentence=text, mp3_path=relative_path, reference_id=sentence_id)
+                file_path, relative_path = generate_audio_from_text(sentence)
+                TTSUsage.objects.create(userId=user, sentence=sentence, mp3_path=relative_path, reference_id=sentence_id)
                 new_entries.append({"Sentence": sentence, "Mp3_Path": relative_path})
-            return JsonResponse({"message": "Processing completed", "data": new_entries, "word": text})
+
+            return JsonResponse({"message": "Processing completed", "data": new_entries, "word": cleaned_text})
         except Exception as e:
             print("Error:", e)
             return JsonResponse({"error": str(e)}, status=500)
