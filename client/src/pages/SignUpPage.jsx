@@ -5,11 +5,8 @@ import { usePost } from '../api/tanstack-get-post.js';
 import { useNavigate } from 'react-router-dom';
 
 const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: '#fff',
-  ...theme.typography.body2,
   padding: theme.spacing(1),
   textAlign: 'center',
-  color: theme.palette.text.secondary,
   marginBottom: theme.spacing(2),
 }));
 
@@ -146,7 +143,7 @@ const SignUp = ({ isCreatingUser, setUserAdded }) => {
               fullWidth
               error={!!errors.fullName}
               helperText={errors.fullName}
-              sx={{ input: { color: 'black' } }}
+              sx={{ input: { color: 'white' } }}
             />
           </Item>
           <Item>
@@ -159,7 +156,7 @@ const SignUp = ({ isCreatingUser, setUserAdded }) => {
               fullWidth
               error={!!errors.email}
               helperText={errors.email}
-              sx={{ input: { color: 'black' } }}
+              sx={{ input: { color: 'white' } }}
             />
           </Item>
           <Item>
@@ -173,7 +170,7 @@ const SignUp = ({ isCreatingUser, setUserAdded }) => {
               fullWidth
               error={!!errors.password}
               helperText={errors.password}
-              sx={{ input: { color: 'black' } }}
+              sx={{ input: { color: 'white' } }}
             />
           </Item>
           <Button variant="contained" onClick={handleNext} sx={{ width: '100%' }}>
@@ -194,16 +191,15 @@ const SignUp = ({ isCreatingUser, setUserAdded }) => {
               error={!!errors.sq1}
               helperText={errors.sq1}
               sx={{
-                backgroundColor: '#f0f0f0',
                 '& .MuiInputBase-input.MuiSelect-select': {
-                  color: 'black',
+                  color: 'white',
                   textAlign: 'left',
                 },
               }}
 
             >
               {securityQuestions.map((q, index) => (
-                <MenuItem key={index} value={q} sx={{ textAlign: 'left', color: 'black' }}>
+                <MenuItem key={index} value={q} sx={{ textAlign: 'left', color: 'white' }}>
                   {q}
                 </MenuItem>
               ))}
@@ -218,8 +214,7 @@ const SignUp = ({ isCreatingUser, setUserAdded }) => {
               error={!!errors.sa1}
               helperText={errors.sa1}
               sx={{
-                backgroundColor: '#f0f0f0',
-                '& .MuiInputBase-input': { color: 'black' },
+                '& .MuiInputBase-input': { color: 'white' },
               }}
             />
           </Item>
@@ -236,13 +231,13 @@ const SignUp = ({ isCreatingUser, setUserAdded }) => {
               helperText={errors.sq2}
               sx={{
                 '& .MuiInputBase-input.MuiSelect-select': {
-                  color: 'black',
+                  color: 'white',
                   textAlign: 'left',
                 },
               }}
             >
               {securityQuestions.map((q, index) => (
-                <MenuItem key={index} value={q} sx={{ textAlign: 'left', color: 'black' }}>
+                <MenuItem key={index} value={q} sx={{ textAlign: 'left', color: 'white' }}>
                   {q}
                 </MenuItem>
               ))}
@@ -257,7 +252,7 @@ const SignUp = ({ isCreatingUser, setUserAdded }) => {
               error={!!errors.sa2}
               helperText={errors.sa2}
               sx={{
-                '& .MuiInputBase-input': { color: 'black' },
+                '& .MuiInputBase-input': { color: 'white' },
               }}
             />
           </Item>

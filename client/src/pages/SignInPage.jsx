@@ -14,6 +14,7 @@ import { usePost } from "../api/tanstack-get-post";
 import useSignIn from "react-auth-kit/hooks/useSignIn";
 import { useNavigate, useLocation } from "react-router-dom";
 
+
 const SignInPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -48,25 +49,42 @@ const SignInPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle form submission
-  const signInSubmit = async () => {
-    if (!validate()) return;
+  // Handle form submission (optionally with provided credentials)
+  const signInSubmit = async (creds) => {
+    const isCreds =
+      !!creds &&
+      typeof creds === "object" &&
+      "email" in creds &&
+      "password" in creds;
+    const data = isCreds ? creds : signIn;
+    console.log(data);
+    // Validate provided data
+    let newErrors = {};
+    if (!data.email) {
+      newErrors.email = "Email is required";
+    } else if (!/^\S+@\S+\.\S+$/.test(data.email)) {
+      newErrors.email = "Invalid email format";
+    }
+    if (!data.password) {
+      newErrors.password = "Password is required";
+    }
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length !== 0) return;
 
     try {
-      const res = await mutateAsync({ postData: signIn, url: "users/sign_in" });
-      console.log(res)
+      const res = await mutateAsync({ postData: data, url: "users/sign_in" });
       setMessage({
         text: res.data.message,
         success: res.data.success,
       });
-      console.log(res)
+
       if (res.data.success) {
         signInContext({
           expireIn: res.data.expires,
           userState: {
             user_id: res.data?.user_id,
             admin: res.data?.admin,
-            email:res.data?.email
+            email: res.data?.email
           },
           auth: {
             token: res.data.token,
@@ -114,7 +132,7 @@ const SignInPage = () => {
 
           <Button
             variant="contained"
-            onClick={signInSubmit}
+            onClick={() => signInSubmit()}
             disabled={isPending}
             fullWidth
           >
@@ -126,6 +144,28 @@ const SignInPage = () => {
               {message.text}
             </Typography>
           )}
+        </Stack>
+
+        {/* Quick demo sign-in buttons */}
+        <Stack spacing={1} sx={{ mt: 2 }}>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={() => signInSubmit({ email: "admin@g.com", password: "admin123" })}
+            disabled={isPending}
+            fullWidth
+          >
+            Use Demo Admin Creds
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={() => signInSubmit({ email: "demo@g.com", password: "demo123" })}
+            disabled={isPending}
+            fullWidth
+          >
+            Use Demo User Creds
+          </Button>
         </Stack>
 
         <Typography sx={{ mt: 2 }}>

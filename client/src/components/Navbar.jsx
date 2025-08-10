@@ -20,7 +20,7 @@ const Navbar = () => {
       <Toolbar>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           <Link to="/" style={{ textDecoration: "none", color: "white" }}>
-            MyApp
+            Text To Speech
           </Link>
         </Typography>
 
@@ -51,7 +51,11 @@ const Navbar = () => {
               </Button>
               <Button color="inherit" component={Link} to="/login">
                 Sign In
-              </Button></>
+              </Button>
+              <Button color="inherit" component={Link} to="/signUp">
+                Sign Up
+              </Button>
+            </>
           )}
         </Box>
       </Toolbar>
