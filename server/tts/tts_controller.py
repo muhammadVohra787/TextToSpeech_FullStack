@@ -23,6 +23,7 @@ load_dotenv()
 
 api_key = os.getenv('GEMINI_API_KEY')
 client = genai.Client(api_key=api_key)
+
 CSV_FILE_PATH = "./tts/data.csv"
 MEDIA_FOLDER = './tts/media'
 
@@ -32,7 +33,16 @@ if os.path.exists(CSV_FILE_PATH):
 else:
     main_df = pd.DataFrame(columns=["Sentence", "Mp3_Path"])
 
-reader = easyocr.Reader(['en'])
+reader = None
+
+def get_reader():
+    global reader
+    if reader is None:
+        print("Loading EasyOCR model now...")
+        reader = easyocr.Reader(['en'])
+        print("EasyOCR model loaded!")
+    return reader
+    
 print("########## MODELS LOADED ############")
 
 @permission_classes([AllowAny])
@@ -93,6 +103,7 @@ def process_text(request):
 def process_image(request):
     if request.method == 'POST' and request.FILES.get('image'):
         try:
+            reader = get_reader()
             sentence_id = uuid.uuid4()
             userId = request.POST.get("userId")
             if not userId:
