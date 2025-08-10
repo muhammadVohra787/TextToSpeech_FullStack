@@ -1,8 +1,10 @@
 import jwt
 from django.http import JsonResponse
 from .user_model import User
-
-SECRET_KEY = "your_secret_key"  # Make sure this matches the one in views
+from dotenv import load_dotenv
+import os
+load_dotenv()
+SECRET_KEY = os.getenv("SECRET_KEY")  # Make sure this matches the one in views
 
 def isAuthenticated(view_func):
     def wrapper(request, *args, **kwargs):

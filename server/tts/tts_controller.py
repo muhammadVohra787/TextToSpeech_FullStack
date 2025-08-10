@@ -19,13 +19,15 @@ from .TTSUsage import TTSUsage
 from google import genai
 import sys
 from dotenv import load_dotenv
+from django.conf import settings
+
 load_dotenv()
 
 api_key = os.getenv('GEMINI_API_KEY')
 client = genai.Client(api_key=api_key)
 
-CSV_FILE_PATH = "./tts/data.csv"
-MEDIA_FOLDER = './tts/media'
+CSV_FILE_PATH = os.path.join(settings.BASE_DIR, 'tts', 'data.csv')
+MEDIA_FOLDER = settings.MEDIA_ROOT
 
 # Load or create CSV
 if os.path.exists(CSV_FILE_PATH):
@@ -53,7 +55,9 @@ def generate_audio_from_text(sentence):
 
     sentence = sentence.replace("_", " ")
     file_name = sentence.replace(' ', '_') + '.wav'
-    file_path = f'{MEDIA_FOLDER}/{file_name}'
+    file_path = os.path.join(MEDIA_FOLDER, file_name)
+    # Create a relative path for URL
+    relative_path = os.path.join('media', file_name).replace('\\', '/')
 
     if not os.path.exists(file_path):
         tts = gTTS(text=sentence, lang="en")
@@ -61,11 +65,13 @@ def generate_audio_from_text(sentence):
         print(f"Generated audio for: '{sentence}' → {file_path}")
 
     if sentence not in main_df['Sentence'].values:
-        new_row = pd.DataFrame({'Sentence': [sentence], 'Mp3_Path': [file_path]})
+        # Store only the relative path in the database
+        new_row = pd.DataFrame({'Sentence': [sentence], 'Mp3_Path': [relative_path]})
         main_df = pd.concat([main_df, new_row], ignore_index=True)
         main_df.to_csv(CSV_FILE_PATH, index=False)
-
-    return file_path
+    
+    # Return both paths: full path for file operations, relative path for URLs
+    return file_path, relative_path
 
 @permission_classes([AllowAny])
 @csrf_exempt
@@ -87,9 +93,9 @@ def process_text(request):
             new_entries = []
 
             for sentence in sentences:
-                file_path = generate_audio_from_text(sentence)
-                TTSUsage.objects.create(userId=user, sentence=text, mp3_path=file_path, reference_id=sentence_id)
-                new_entries.append({"Sentence": sentence, "Mp3_Path": file_path})
+                file_path, relative_path = generate_audio_from_text(sentence)
+                TTSUsage.objects.create(userId=user, sentence=text, mp3_path=relative_path, reference_id=sentence_id)
+                new_entries.append({"Sentence": sentence, "Mp3_Path": relative_path})
             
             return JsonResponse({"message": "Processing completed", "data": new_entries})
         except Exception as e:
@@ -126,9 +132,9 @@ def process_image(request):
             new_entries = []
             print(sentences)
             for sentence in sentences:
-                file_path = generate_audio_from_text(sentence)               
-                TTSUsage.objects.create(userId=user, sentence=text, mp3_path=file_path, reference_id=sentence_id)
-                new_entries.append({"Sentence": sentence, "Mp3_Path": file_path})
+                file_path, relative_path = generate_audio_from_text(sentence)               
+                TTSUsage.objects.create(userId=user, sentence=text, mp3_path=relative_path, reference_id=sentence_id)
+                new_entries.append({"Sentence": sentence, "Mp3_Path": relative_path})
             return JsonResponse({"message": "Processing completed", "data": new_entries, "word": text})
         except Exception as e:
             print("Error:", e)
