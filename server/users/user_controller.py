@@ -14,9 +14,11 @@ from .user_middlewares import isAuthenticated, isAdmin
 from collections import defaultdict
 from pydub import AudioSegment
 from django.db.models import Max
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
-
-SECRET_KEY = "your_secret_key"  # Change this to a strong key
+SECRET_KEY = os.getenv("SECRET_KEY")
 CSV_FILE_PATH = "../tts/data.csv"
 MEDIA_FOLDER = '../tts/media'
 @csrf_exempt
