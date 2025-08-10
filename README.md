@@ -1,5 +1,8 @@
-﻿# TTS App Server  
-## Python version -> Python 3.12.3
+# TextToSpeech Full-Stack App  
+Modern full-stack application for converting text and images to natural-sounding speech. Includes protected authentication (sign in, sign up, forgot password) and separate dashboards for users and admins.
+
+## Backend runtime
+Python 3.12.3
 ## **Setup and Run the Server**  
 
 0. **Start your MongoDB localhost** 
@@ -39,23 +42,105 @@
    python manage.py runserver
    ```
 
-✅ Your server should now be running at **http://localhost:5173** 🚀
+✅ The Django API should now be running at **http://localhost:8000** 🚀
 
 If you're still encountering any error, run the VS Code as administrator
 ```
 
 ```
 
-Scripts to execute
+## Setup and Run the Client (Frontend)
 
-server => python manage.py runserver
+1. Navigate to the client directory
+   ```sh
+   cd client/
+   ```
 
-client => npm run dev
+2. Install dependencies
+   ```sh
+   npm install
+   ```
 
-<img width="1094" height="900" alt="image" src="https://github.com/user-attachments/assets/e68a98a5-59bf-4ebb-9b69-b576b1b9cb07" />
+3. Start the Vite dev server
+   ```sh
+   npm run dev
+   ```
 
-<img width="1094" height="900" alt="image" src="https://github.com/user-attachments/assets/5e54b23a-d540-4198-9912-d3190628f884" />
+✅ The frontend should now be running at **http://localhost:5173**
 
-<img width="1314" height="575" alt="image" src="https://github.com/user-attachments/assets/9403805c-612c-4880-8960-79a8ca609125" />
+## Repository Scripts / How to Run
+
+- **Backend (Django)**: from `server/`
+  ```sh
+  python manage.py runserver
+  ```
+
+- **Frontend (Vite/React)**: from `client/`
+  ```sh
+  npm run dev
+  ```
+
+Keep both processes running for the full app experience.
+
+## Features
+
+- Protected authentication: Sign In, Sign Up, Forgot Password
+- Role-based dashboards: separate landing pages after login for `User` and `Admin`
+- Text-to-Speech (TTS)
+- Image-to-Speech (OCR + TTS)
+- Modern, responsive UI using Material UI
+- Full-stack integration with clean API boundaries
+
+## Tech Stack
+
+- Frontend: React (Vite), React Router, TanStack Query, Material UI
+- Auth: react-auth-kit
+- Backend: Django (Python)
+- Database: MongoDB (local), make sure `mongod` is running
+
+## Project Structure
+
+```
+TextToSpeech_FullStack/
+├─ client/           # React + Vite frontend
+└─ server/           # Django backend
+```
+
+## Authentication & Routing
+
+- **Protected routes**: Sign In, Sign Up, and Forgot Password flows are implemented. Auth is enforced for app routes.
+- **Dashboards**:
+  - User dashboard: ` /dashboard/user `
+  - Admin dashboard: ` /dashboard/admin `
+- **Post-login landing** is determined by the authenticated role (admin vs user).
+
+## Environment Variables
+
+Backend uses environment variables. Start by copying the template:
+
+```sh
+cd server/
+copy .env.template .env  # Windows
+# or
+cp .env.template .env    # Mac/Linux
+```
+Then fill in values (e.g., database URI, any API keys if applicable).
+
+## Screenshots
+
+<p align="center">
+  <b>Landing Page</b><br/>
+  <img width="1094" alt="Landing Page" src="https://github.com/user-attachments/assets/e68a98a5-59bf-4ebb-9b69-b576b1b9cb07" />
+</p>
+
+<p align="center">
+  <b>Text to Speech</b><br/>
+  <img width="1094" alt="Text to Speech" src="https://github.com/user-attachments/assets/5e54b23a-d540-4198-9912-d3190628f884" />
+</p>
+
+<p align="center">
+  <b>Image to Speech (OCR)</b><br/>
+  <img width="1314" alt="Image to Speech (OCR)" src="https://github.com/user-attachments/assets/9403805c-612c-4880-8960-79a8ca609125" />
+</p>
 
 
