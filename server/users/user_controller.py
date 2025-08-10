@@ -351,19 +351,33 @@ def run_once():
         # Check if user already exists
         if User.objects.filter(email="admin@g.com").exists():
             print("admin already exists")
-            return
-        
-        user = User.objects.create(
-            email="admin@g.com",
-            fullName= "Muhammad Vohra",
-            password=make_password("admin123"),  # Hash password
-            sq1="Favourite guy",
-            sa1="me",
-            sq2="best game",
-            sa2="idk", 
-            admin=True
-        )
-        print("admin user registered")
+        else:
+            user = User.objects.create(
+                email="admin@g.com",
+                fullName= "Muhammad Vohra",
+                password=make_password("admin123"),  # Hash password
+                sq1="Favourite guy",
+                sa1="me",
+                sq2="best game",
+                sa2="idk", 
+                admin=True
+            )
+            print("admin user registered")
+        if User.objects.filter(email="demo@g.com").exists():
+            print("demo already exists")
+        else:
+            user = User.objects.create(
+                email="demo@g.com",
+                fullName= "Muhammad Vohra",
+                password=make_password("demo123"),  # Hash password
+                sq1="Favourite guy",
+                sa1="me",
+                sq2="best game",
+                sa2="idk", 
+                admin=False
+            )
+            print("demo user registered")
+        return
     except Exception as e:
         print(e)
 
