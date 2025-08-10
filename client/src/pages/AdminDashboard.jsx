@@ -17,6 +17,10 @@ import { format } from 'date-fns';
 import { Container, Typography, Box, CircularProgress, Divider, Card, CardContent, Button } from "@mui/material";
 import { usePostAuthenticated } from "../api/tanstack-get-post";
 import useAuthHeader from 'react-auth-kit/hooks/useAuthHeader';
+
+
+const API_URL=import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+
 const AdminDashboard = () => {
     const authHeader = useAuthHeader();
     const [metrics, setMetrics] = useState([]);
@@ -71,7 +75,7 @@ const AdminDashboard = () => {
     };
     const fetchUsers = async () => {
         try {
-            const response = await axios.get('http://127.0.0.1:8000/api/users/get_all_users', {
+            const response = await axios.get(`${API_URL}/api/users/get_all_users`, {
                 headers: {
                     Authorization: authHeader,
                 },
@@ -85,7 +89,7 @@ const AdminDashboard = () => {
         const fetchMetrics = async () => {
             setLoading(true);
             try {
-                const response = await axios.get("http://127.0.0.1:8000/api/users/get_usage", {
+                const response = await axios.get(`${API_URL}/api/users/get_usage`, {
                     headers: {
                         Authorization: "Bearer <Your_Token_Here>",
                     },

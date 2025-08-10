@@ -3,6 +3,7 @@ import axios from 'axios';
 import { TextField, Button, Typography, Box, CircularProgress, Card, CardContent } from '@mui/material';
 import WavEncoder from 'wav-encoder'; // Import the wav-encoder library
 import useAuthUser from 'react-auth-kit/hooks/useAuthUser';
+const API_URL=import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
 const ProcessText = () => {
   const authUser = useAuthUser();
@@ -31,14 +32,14 @@ const ProcessText = () => {
       console.log({        text: text.trim(),
         userId: userId})
       // Send the text to generate audio
-      const response = await axios.post('http://127.0.0.1:8000/api/tts/process_text/', {
+      const response = await axios.post(`${API_URL}/api/tts/process_text/`, {
         text: text.trim(),
-        userId: userId
+        userId: userId  
       });
 
       if (response.data?.data?.length > 0) {
         // Extract audio URLs from the response data
-        const audioPaths = response.data.data.map(item => `http://127.0.0.1:8000/${item.Mp3_Path}`);
+        const audioPaths = response.data.data.map(item => `${API_URL}/${item.Mp3_Path}`);
         
         // Combine the audio files on the frontend
         combineAudioFiles(audioPaths);

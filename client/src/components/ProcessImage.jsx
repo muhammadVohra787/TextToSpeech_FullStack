@@ -4,6 +4,8 @@ import { Alert, Button, Box, Typography, CircularProgress, Container } from '@mu
 import WavEncoder from 'wav-encoder'; // Import the wav-encoder library
 import useAuthUser from 'react-auth-kit/hooks/useAuthUser';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+
 const ProcessImage = () => {
   const authUser = useAuthUser();
   const userId = authUser?.user_id;
@@ -39,7 +41,7 @@ const ProcessImage = () => {
     formData.append('userId', userId);    // Append the userId to the form data
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/tts/process_image/', formData, {
+      const response = await axios.post(`${API_URL}/api/tts/process_image/`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -52,7 +54,7 @@ const ProcessImage = () => {
         // Construct proper URLs for audio files
         const audioPaths = response.data.data.map(item => {
           const fileName = item.Mp3_Path.split('/').pop(); // Get only the file name
-          return `http://127.0.0.1:8000/tts/media/${fileName}`; // Ensure correct path
+          return `${API_URL}/media/${fileName}`; // Ensure correct path
         });
 
         // Combine the audio files into one

@@ -7,6 +7,7 @@ import WavEncoder from 'wav-encoder'; // Import the wav-encoder library
 import axios from 'axios';
 import {useNavigate} from "react-router-dom"
 
+const API_URL=import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
 const ProfilePage = () => {
   const authUser = useAuthUser();
@@ -68,7 +69,7 @@ const ProfilePage = () => {
 
         // Loop through each audio path and fetch the audio data
         for (let j = 0; j < paths.length; j++) {
-          const response = await axios.get(`http://127.0.0.1:8000/${paths[j]}`, {
+          const response = await axios.get(`${API_URL}/${paths[j]}`, {
             responseType: 'arraybuffer', // Set response type to arraybuffer
           });
 
@@ -178,7 +179,7 @@ const ProfilePage = () => {
   return (
     <Box sx={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'column', display: 'flex' }}>
       {!userId && <h1>Not logged in</h1>}
-      {!gettingUserData && !updatingUserData && !gettingUserRecordings && !deletingRecordings ? (
+      {!gettingUserData && !updatingUserData && !gettingUserRecordings ? (
         <>
           <Paper sx={{ textAlign: 'center', maxWidth: 600, width: '100%', padding: 3, boxShadow: 2, borderRadius: 2 }}>
             <Typography variant="h4" sx={{ marginBottom: 3 }}>
