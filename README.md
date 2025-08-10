@@ -52,6 +52,10 @@ server => python manage.py runserver
 
 client => npm run dev
 
-```
+<img width="1094" height="900" alt="image" src="https://github.com/user-attachments/assets/e68a98a5-59bf-4ebb-9b69-b576b1b9cb07" />
+
+<img width="1094" height="900" alt="image" src="https://github.com/user-attachments/assets/5e54b23a-d540-4198-9912-d3190628f884" />
+
+<img width="1314" height="575" alt="image" src="https://github.com/user-attachments/assets/9403805c-612c-4880-8960-79a8ca609125" />
 
 
