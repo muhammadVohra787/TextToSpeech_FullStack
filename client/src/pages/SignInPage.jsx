@@ -6,14 +6,12 @@ import {
   TextField,
   Button,
   Stack,
-  Link,
   CircularProgress,
   IconButton,
 } from "@mui/material";
 import { usePost } from "../api/tanstack-get-post";
 import useSignIn from "react-auth-kit/hooks/useSignIn";
-import { useNavigate, useLocation } from "react-router-dom";
-
+import { useNavigate, useLocation, Link } from "react-router-dom";
 
 const SignInPage = () => {
   const navigate = useNavigate();
@@ -170,9 +168,9 @@ const SignInPage = () => {
 
         <Typography sx={{ mt: 2 }}>
           Don't have an account?{" "}
-          <Link href="/signUp" underline="hover" sx={{ color: "white" }}>
+          <Typography component={Link} to="/signUp" sx={{ color: "white" }}>
             Register here
-          </Link>
+          </Typography>
         </Typography>
 
         <Typography
