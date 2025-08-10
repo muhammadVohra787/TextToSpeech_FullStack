@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    "texttospeech-fullstack.onrender.com",
+    "texttospeech-fullstack.onrender.com",  # no https://
     "localhost",
     "127.0.0.1"
 ]
@@ -61,6 +61,11 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'myproject.urls'
+
+CORS_ALLOWED_ORIGINS = [
+    "https://text-to-speech-full-stack.vercel.app/",
+    "http://localhost:5173"
+]
 
 TEMPLATES = [
     {
