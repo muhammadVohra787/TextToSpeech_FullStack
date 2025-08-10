@@ -63,7 +63,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'myproject.urls'
 
 CORS_ALLOWED_ORIGINS = [
-    "https://text-to-speech-full-stack.vercel.app/",
+    "https://text-to-speech-full-stack.vercel.app",
     "http://localhost:5173"
 ]
 
