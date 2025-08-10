@@ -11,12 +11,10 @@ from rest_framework.permissions import AllowAny
 from PIL import Image
 import uuid
 import io
-import sys
 from gtts import gTTS
 from users.user_model import User
 from .TTSUsage import TTSUsage
 from google import genai
-import sys
 from dotenv import load_dotenv
 from django.conf import settings
 
