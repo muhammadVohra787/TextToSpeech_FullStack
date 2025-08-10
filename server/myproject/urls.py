@@ -3,12 +3,11 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.http import HttpResponse
-def home(request):
-    return HttpResponse("Backend is running ✅")
 
-
+def health_check(request):
+    return HttpResponse("OK", status=200)
 urlpatterns = [
-    path('', home),
+    path('', health_check),
     path('admin/', admin.site.urls),
     path("api/users/", include("users.user_urls")),
     path('api/tts/', include('tts.tts_urls'))
