@@ -1,6 +1,23 @@
 # TextToSpeech Full-Stack App  
 Modern full-stack application for converting text and images to natural-sounding speech. Includes protected authentication (sign in, sign up, forgot password) and separate dashboards for users and admins.
 
+## Screenshots
+
+<p align="center">
+  <b>Landing Page</b><br/>
+  <img width="1094" alt="Landing Page" src="https://github.com/user-attachments/assets/e68a98a5-59bf-4ebb-9b69-b576b1b9cb07" />
+</p>
+
+<p align="center">
+  <b>Text to Speech</b><br/>
+  <img width="1094" alt="Text to Speech" src="https://github.com/user-attachments/assets/5e54b23a-d540-4198-9912-d3190628f884" />
+</p>
+
+<p align="center">
+  <b>Image to Speech (OCR)</b><br/>
+  <img width="1314" alt="Image to Speech (OCR)" src="https://github.com/user-attachments/assets/9403805c-612c-4880-8960-79a8ca609125" />
+</p>
+
 ## Backend runtime
 Python 3.12.3
 ## **Setup and Run the Server**  
@@ -126,21 +143,6 @@ cp .env.template .env    # Mac/Linux
 ```
 Then fill in values (e.g., database URI, any API keys if applicable).
 
-## Screenshots
 
-<p align="center">
-  <b>Landing Page</b><br/>
-  <img width="1094" alt="Landing Page" src="https://github.com/user-attachments/assets/e68a98a5-59bf-4ebb-9b69-b576b1b9cb07" />
-</p>
-
-<p align="center">
-  <b>Text to Speech</b><br/>
-  <img width="1094" alt="Text to Speech" src="https://github.com/user-attachments/assets/5e54b23a-d540-4198-9912-d3190628f884" />
-</p>
-
-<p align="center">
-  <b>Image to Speech (OCR)</b><br/>
-  <img width="1314" alt="Image to Speech (OCR)" src="https://github.com/user-attachments/assets/9403805c-612c-4880-8960-79a8ca609125" />
-</p>
 
 
